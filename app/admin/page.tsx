@@ -4,91 +4,78 @@ import { useEffect, useState } from "react"
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import { format } from "date-fns"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 
-type Cita = {
+interface Cita {
+  id: string
+  fecha: any
+  hora?: any
   nombre: string
-  telefono: string
   servicio: string
-  fecha: Date
   colaboradora: string
   sucursal: string
-  hora: string
 }
 
+const colaboradoras = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
+
 export default function AdminDashboardPage() {
-  const [citasFuturas, setCitasFuturas] = useState<Record<string, Cita[]>>({})
-  const [saludo, setSaludo] = useState("")
+  const [citasFuturas, setCitasFuturas] = useState<Cita[]>([])
 
- useEffect(() => {
-  const obtenerCitas = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, "citas"))
-      const ahora = new Date()
-
-      const futuras: Record<string, Cita[]> = {}
-
-      snapshot.docs.forEach(doc => {
-        const data = doc.data()
-        if (!data.fecha || !data.fecha.toDate) return
-
-        const fecha = data.fecha.toDate()
-        if (fecha < ahora) return
-
-        const cita: Cita = {
-          nombre: data.nombre || "Sin nombre",
-          telefono: data.telefono || "No proporcionado",
-          servicio: data.servicio || "Sin servicio",
-          colaboradora: data.colaboradora || "Sin asignar",
-          fecha,
-          hora: data.hora || "Sin hora",
-          sucursal: data.sucursal || "Sin sucursal",
-        }
-
-        const dia = format(fecha, "yyyy-MM-dd")
-        if (!futuras[dia]) futuras[dia] = []
-        futuras[dia].push(cita)
-      })
-
-      setCitasFuturas(futuras)
-    } catch (error) {
-      console.error("Error obteniendo citas:", error)
-    }
+  // Saludo dinámico
+  const getSaludo = () => {
+    const hora = new Date().getHours()
+    if (hora < 12) return "Buen día"
+    if (hora < 19) return "Buenas tardes"
+    return "Buenas noches"
   }
 
-  const horaActual = new Date().getHours()
-  if (horaActual < 12) setSaludo("Buen día")
-  else if (horaActual < 19) setSaludo("Buenas tardes")
-  else setSaludo("Buenas noches")
+  const saludo = getSaludo()
 
-  obtenerCitas()
-}, [])
+  useEffect(() => {
+    const obtenerCitas = async () => {
+      const snapshot = await getDocs(collection(db, "citas"))
+      const hoy = new Date()
+      const futuras = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() } as Cita))
+        .filter((cita) => {
+          if (!cita.fecha?.toDate) return false
+          return cita.fecha.toDate() >= hoy
+        })
+        .sort((a, b) => a.fecha.toDate().getTime() - b.fecha.toDate().getTime())
 
+      setCitasFuturas(futuras)
+    }
+
+    obtenerCitas()
+  }, [])
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">{saludo} Maravilla ✨</h1>
-      <Separator />
-      {Object.entries(citasFuturas).map(([fecha, citas]) => (
-        <div key={fecha} className="space-y-4">
-          <h2 className="text-lg font-bold">📅 {format(new Date(fecha), "dd MMMM yyyy")}</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {citas.map((cita, index) => (
-              <Card key={index}>
-                <CardContent className="p-4 space-y-1">
-                  <p><strong>Colaboradora:</strong> {cita.colaboradora}</p>
-                  <p><strong>Servicio:</strong> {cita.servicio}</p>
-                  <p><strong>Hora:</strong> {cita.hora}</p>
-                  <p><strong>Cliente:</strong> {cita.nombre}</p>
-                  <p><strong>Teléfono:</strong> {cita.telefono}</p>
-                  <p><strong>Sucursal:</strong> {cita.sucursal}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ))}
+    <div>
+      <h1 className="text-2xl font-bold mb-4">{saludo} Maravilla</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {colaboradoras.map((colab) => {
+          const citasDeColab = citasFuturas.filter(
+            (cita) => cita.colaboradora === colab
+          )
+
+          return (
+            <div key={colab} className="bg-white rounded shadow p-4">
+              <h2 className="text-xl font-semibold mb-2">{colab}</h2>
+              {citasDeColab.length === 0 ? (
+                <p className="text-gray-500">Sin citas futuras</p>
+              ) : (
+                <ul className="space-y-2">
+                  {citasDeColab.map((cita) => (
+                    <li key={cita.id} className="border p-2 rounded text-sm">
+                      <strong>{format(cita.fecha.toDate(), "dd MMM yyyy")}</strong> - {cita.nombre} ({cita.servicio}) <br />
+                      <span className="text-gray-500">{cita.sucursal}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
