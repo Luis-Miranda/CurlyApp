@@ -1,5 +1,12 @@
 # ✨ Curly Admin Pro
 
+![Next.js](https://img.shields.io/badge/Next.js-14-blue?logo=next.js)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-^3.x-blue?logo=tailwindcss)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.x-blue?logo=typescript)
+![Firebase](https://img.shields.io/badge/Firebase-Active-yellow?logo=firebase)
+![Status](https://img.shields.io/badge/status-En%20Desarrollo-orange)
+
+
 **Curly Admin Pro** es una plataforma interna para la gestión completa de citas, clientes, colaboradoras, ventas, reportes y control administrativo de la marca **Maravilla Curly**.  
 Su enfoque es brindar una experiencia rápida, segura y organizada para el equipo de trabajo, con un panel intuitivo, responsivo y conectado en tiempo real con Firebase.
 
