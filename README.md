@@ -1,97 +1,70 @@
-# CurlyApp
-# Curly Admin Pro ✨
+# ✨ Curly Admin Pro
 
-**Fecha de actualización:** 2025-08-02
-
-Curly Admin Pro es un sistema administrativo integral para Maravilla Curly, enfocado en agendamiento de citas, gestión de clientes, control de ventas y administración del personal.
+**Curly Admin Pro** es una plataforma interna para la gestión completa de citas, clientes, colaboradoras, ventas, reportes y control administrativo de la marca **Maravilla Curly**.  
+Su enfoque es brindar una experiencia rápida, segura y organizada para el equipo de trabajo, con un panel intuitivo, responsivo y conectado en tiempo real con Firebase.
 
 ---
 
-## ✅ Funcionalidades actuales
+## 🧰 Tecnologías utilizadas
 
-### 👥 Clientes (Versión pública)
-- Selección de servicio, sucursal y colaboradora.
-- Validación de:
-  - 4 citas por colaboradora por día.
-  - Citas sin traslapes (por duración).
-  - Fechas disponibles dentro de los 3 meses siguientes.
-- Sistema aleatorio o manual para asignar colaboradora.
-- Conexión directa a Firebase (Firestore).
-- Responsive y mobile first.
-- Estilo moderno con TailwindCSS + Shadcn/UI.
-
-### 🧑‍💻 Panel Administrativo
-- Ruta: `/admin`
-- Sidebar con navegación:
-  - Dashboard (saludo personalizado según hora).
-  - Vista de citas futuras por colaboradora y fecha.
-  - Calendario para bloquear días (ruta `/admin/calendar`)
-- Diseño UI unificado con la versión cliente.
+- [Next.js 14](https://nextjs.org/) (App Router)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Firebase](https://firebase.google.com/) (Auth, Firestore, Storage)
+- [Shadcn/ui](https://ui.shadcn.com/)
+- [React Hook Form](https://react-hook-form.com/)
 
 ---
 
-## 🔜 Próximas features
+## 🧪 Cómo correr el proyecto localmente
 
-### 🔐 Autenticación
-- Firebase Auth con roles: Admin, Colaboradora, Recepcionista.
-- Saludo dinámico con nombre del usuario.
+1. Clona el repositorio:
+```bash
+git clone https://github.com/TU_USUARIO/TU_REPO.git
+cd TU_REPO
+2. Instala dependencias
+npm install
+3. Configura tus variables de entorno en .env.local:
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
 
-### 📅 Citas y colaboradores
-- Dashboard individual por colaboradora.
-- Filtro de citas por sucursal o colaboradora.
-- Resumen visual con tarjetas dinámicas.
-- Exportar citas como CSV.
+4. Inicia el servidor local:
+npm run dev
 
-### 📁 Gestión de clientes
-- Ficha clínica digital.
-- Firma electrónica.
-- Adjuntar fotos del proceso.
+📁 Estructura actual
+app/
+├── admin/               → Panel administrativo
+│   ├── appointments/    → Vista de citas por día y colaboradora
+│   ├── calendar/        → Bloqueo de días no disponibles
+│   └── layout.tsx       → Sidebar y navegación del admin
+├── booking/             → Reservas públicas (cliente)
+├── layout.tsx           → Layout base
+lib/                     → Funciones utilitarias
+components/              → Componentes compartidos
 
-### 📊 Ventas y reportes
-- Registro diario, semanal, mensual y anual.
-- Panel de productos y control de inventario.
+✅ Funcionalidades completadas
 
----
+Reservas por parte del cliente (servicio, colaboradora, horario, datos personales)
+Validación de límite de 4 citas por colaboradora/día
+Asignación automática si no se elige colaboradora
+Bloqueo de días desde panel admin (/admin/calendar)
+Vista tipo panel de citas por día y colaboradora
+Saludo personalizado en dashboard según hora
+Sidebar administrativo responsivo
+🚧 Próximas funcionalidades
 
-## 🚀 Stack tecnológico
+Gestión de usuarios por roles (admin, recepcionista, colaboradora)
+Subida de fotos al perfil del cliente (proceso)
+Firma digital de políticas
+Reporte de ventas (día, semana, mes, año)
+CRUD de productos
+Exportar información en CSV
+Notificaciones por correo/WhatsApp
+Protección de rutas con Auth
+🧑‍💻 Desarrollado por
 
-- **Framework:** Next.js 14 (App Router)
-- **Lenguaje:** TypeScript
-- **UI:** TailwindCSS + shadcn/ui
-- **Base de datos:** Firebase Firestore
-- **Autenticación (próximamente):** Firebase Auth
-- **Almacenamiento:** Firebase Storage
-- **Hosting (planeado):** Vercel
-- **Control de versiones:** Git & GitHub
-
----
-
-## 📁 Organización de carpetas
-
-```
-/app
-  /booking
-  /admin
-    /appointments
-    /calendar
-  layout.tsx
-  page.tsx
-
-/lib
-  utils.ts
-
-/components
-  (componentes compartidos UI)
-
-```
-
----
-
-## 🧠 Contribución y notas
-
-Este proyecto está siendo desarrollado paso a paso por Wuicho, con enfoque en:
-- Mobile First.
-- UX/UI de alta calidad.
-- SEO y rendimiento optimizados.
-- Escalabilidad y organización de código.
-
+Luis Miranda – @bakerynomad
