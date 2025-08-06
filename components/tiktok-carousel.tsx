@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 const tiktokVideos = [
   {
@@ -24,17 +24,6 @@ const tiktokVideos = [
 
 export function TikTokCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-
-  useEffect(() => {
-    if (!isAutoPlaying) return
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % tiktokVideos.length)
-    }, 6000)
-
-    return () => clearInterval(interval)
-  }, [isAutoPlaying])
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + tiktokVideos.length) % tiktokVideos.length)
@@ -44,13 +33,10 @@ export function TikTokCarousel() {
     setCurrentIndex((prev) => (prev + 1) % tiktokVideos.length)
   }
 
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying)
-  }
-
   return (
     <section className="py-16 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
+        {/* Título y descripción */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Síguenos</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -58,23 +44,17 @@ export function TikTokCarousel() {
           </p>
         </div>
 
+        {/* Contenedor principal con flechas laterales */}
         <div className="relative max-w-4xl mx-auto">
-          {/* Controles */}
-          <div className="flex justify-center items-center gap-4 mb-6">
-            <Button variant="outline" size="icon" onClick={goToPrevious} className="rounded-full">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+          {/* Flecha Izquierda */}
+          <button
+            onClick={goToPrevious}
+            className="absolute top-1/2 left-0 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full shadow z-10"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-            <Button variant="outline" size="icon" onClick={toggleAutoPlay} className="rounded-full">
-              {isAutoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            </Button>
-
-            <Button variant="outline" size="icon" onClick={goToNext} className="rounded-full">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Carrusel de videos */}
+          {/* Carrusel */}
           <div className="overflow-hidden rounded-2xl">
             <div
               className="flex transition-transform duration-500 ease-in-out"
@@ -97,7 +77,15 @@ export function TikTokCarousel() {
             </div>
           </div>
 
-          {/* Indicadores */}
+          {/* Flecha Derecha */}
+          <button
+            onClick={goToNext}
+            className="absolute top-1/2 right-0 -translate-y-1/2 bg-white/80 hover:bg-white text-black p-2 rounded-full shadow z-10"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          {/* Indicadores inferiores */}
           <div className="flex justify-center gap-2 mt-6">
             {tiktokVideos.map((_, index) => (
               <button
@@ -111,7 +99,7 @@ export function TikTokCarousel() {
           </div>
         </div>
 
-        {/* Call to Action */}
+        {/* CTA */}
         <div className="text-center mt-12">
           <Button asChild size="lg" className="gap-2">
             <a
