@@ -8,7 +8,7 @@ export function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/placeholder.svg?height=1080&width=1920"
+          src= "images/portada.png"
           alt="Maravilla Curly Salon"
           fill
           className="object-cover"
@@ -44,7 +44,7 @@ export function HeroSection() {
 
         <div className="mt-12 flex justify-center items-center gap-8 text-sm">
           <div className="text-center">
-            <div className="text-2xl font-bold">500+</div>
+            <div className="text-2xl font-bold">5000+</div>
             <div className="text-white/80">Clientes Satisfechos</div>
           </div>
           <div className="w-px h-12 bg-white/30" />

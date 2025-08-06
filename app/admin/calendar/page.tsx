@@ -1,97 +1,85 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { db } from "@/lib/firebase"
 import {
   collection,
   getDocs,
-  addDoc,
-  deleteDoc,
+  setDoc,
   doc,
-  Timestamp,
+  deleteDoc,
 } from "firebase/firestore"
+import { toast } from "sonner"
 
 export default function AdminCalendarPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [blockedDates, setBlockedDates] = useState<{ id: string; date: string }[]>([])
+  const [selectedDates, setSelectedDates] = useState<Date[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchBlocked = async () => {
-      const snapshot = await getDocs(collection(db, "bloqueos"))
-      const dates = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        date: format(doc.data().fecha.toDate(), "yyyy-MM-dd"),
-      }))
-      setBlockedDates(dates)
+    const fetchBlockedDates = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "diasBloqueados"))
+        const dates = snapshot.docs.map((doc) => {
+          const data = doc.data()
+          if (data.fecha?.seconds) {
+            return new Date(data.fecha.seconds * 1000)
+          }
+          return new Date(data.fecha)
+        })
+        setSelectedDates(dates)
+      } catch (error) {
+        console.error("Error al cargar días bloqueados:", error)
+        toast.error("Error al cargar días bloqueados")
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchBlocked()
+
+    fetchBlockedDates()
   }, [])
 
-  const isAlreadyBlocked = (date: Date) => {
+  const toggleDate = async (date: Date) => {
     const formatted = format(date, "yyyy-MM-dd")
-    return blockedDates.some((d) => d.date === formatted)
-  }
+    const docRef = doc(db, "diasBloqueados", formatted)
+    const isBlocked = selectedDates.some(
+      (d) => format(d, "yyyy-MM-dd") === formatted
+    )
 
-  const handleBlockDate = async () => {
-    if (!selectedDate || isAlreadyBlocked(selectedDate)) return
-    const docRef = await addDoc(collection(db, "bloqueos"), {
-      fecha: Timestamp.fromDate(selectedDate),
-    })
-    setBlockedDates((prev) => [
-      ...prev,
-      { id: docRef.id, date: format(selectedDate, "yyyy-MM-dd") },
-    ])
-    setSelectedDate(undefined)
-  }
-
-  const handleDelete = async (id: string) => {
-    await deleteDoc(doc(db, "bloqueos", id))
-    setBlockedDates((prev) => prev.filter((d) => d.id !== id))
+    try {
+      if (isBlocked) {
+        await deleteDoc(docRef)
+        setSelectedDates((prev) =>
+          prev.filter((d) => format(d, "yyyy-MM-dd") !== formatted)
+        )
+        toast.success("Día desbloqueado correctamente")
+      } else {
+        await setDoc(docRef, { fecha: date })
+        setSelectedDates((prev) => [...prev, date])
+        toast.success("Día bloqueado correctamente")
+      }
+    } catch (error) {
+      console.error("Error al actualizar día:", error)
+      toast.error("Error al actualizar día")
+    }
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Block Dates Globally</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            modifiers={{
-              blocked: (date) =>
-                blockedDates.some((d) => d.date === format(date, "yyyy-MM-dd")),
-            }}
-            modifiersClassNames={{
-              blocked: "bg-red-500 text-white rounded-md hover:bg-red-600",
-            }}
-          />
-          <Button onClick={handleBlockDate} disabled={!selectedDate || isAlreadyBlocked(selectedDate)}>
-            {selectedDate ? "Block this date" : "Select a date"}
-          </Button>
-          <div className="space-y-2">
-            <h2 className="text-lg font-semibold">Currently Blocked Dates</h2>
-            {blockedDates.length === 0 && <p className="text-muted-foreground">No blocked days.</p>}
-            {blockedDates.map(({ id, date }) => (
-              <div
-                key={id}
-                className="flex justify-between items-center border p-2 rounded"
-              >
-                <span>{date}</span>
-                <Button variant="destructive" onClick={() => handleDelete(id)}>
-                  Eliminar
-                </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="p-4 max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold text-center mb-4">Bloquear días</h1>
+      {!loading ? (
+        <Calendar
+          mode="multiple"
+          selected={selectedDates}
+          onDayClick={toggleDate}
+          classNames={{
+            day_selected: "bg-red-500 text-white hover:bg-red-600",
+          }}
+        />
+      ) : (
+        <p className="text-center">Cargando calendario...</p>
+      )}
     </div>
   )
 }

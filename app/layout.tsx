@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   description:
     "Celebrating the natural beauty of your curls with expert care, specialized techniques, and personalized styling. Book your curly hair transformation today.",
   keywords: "curly hair, hair salon, curly hair cut, hair styling, Miami salon, curl specialist",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({

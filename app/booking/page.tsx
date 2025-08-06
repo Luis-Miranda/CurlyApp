@@ -1,194 +1,184 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { addDoc, collection, getDocs, Timestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
+import { db } from "@/lib/firebase"
+import { collection, getDocs, addDoc, Timestamp } from "firebase/firestore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "sonner"
 
-const servicios = ["Definición", "Color", "Tratamiento", "Corte"]
-const sucursales = ["Portales", "División del Norte"]
+const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"]
+const sucursales = ["Víctor Hugo", "División del Norte"]
 const colaboradoras = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
 
 export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [selectedHour, setSelectedHour] = useState("")
-  const [nombre, setNombre] = useState("")
-  const [telefono, setTelefono] = useState("")
+  const [hora, setHora] = useState("")
   const [servicio, setServicio] = useState("")
   const [sucursal, setSucursal] = useState("")
   const [colaboradora, setColaboradora] = useState("")
+  const [nombre, setNombre] = useState("")
+  const [telefono, setTelefono] = useState("")
+  const [email, setEmail] = useState("")
   const [colaboradorasDisponibles, setColaboradorasDisponibles] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
-  const horasDisponibles = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00"]
+  // Horarios válidos
+  const horariosDisponibles = [
+    "10:00", "11:00", "12:00", "13:00",
+    "15:00", "16:00", "17:00", "18:00"
+  ]
 
   useEffect(() => {
-  const obtenerColaboradoras = async () => {
-    if (!selectedDate || !sucursal) return;
+    const obtenerColaboradoras = async () => {
+      if (!selectedDate || !sucursal) return
+      const snapshot = await getDocs(collection(db, "citas"))
+      const fechaStr = format(selectedDate, "yyyy-MM-dd")
 
-    const snapshot = await getDocs(collection(db, "citas"));
-    const fechaStr = format(selectedDate, "yyyy-MM-dd");
+      const citasDelDia = snapshot.docs
+        .map(doc => doc.data())
+        .filter(cita => {
+          const citaDate = cita.fecha?.toDate?.()
+          return citaDate && format(citaDate, "yyyy-MM-dd") === fechaStr
+        })
 
-    const citasDelDia = snapshot.docs
-      .map((doc) => doc.data())
-      .filter(
-        (cita) =>
-          cita.fecha &&
-          format(cita.fecha, "yyyy-MM-dd") === fechaStr
-      );
+      const colaboradorasOcupadas = new Set<string>()
 
-    const colaboradorasAsignadas = new Set<string>();
+      citasDelDia.forEach(cita => {
+        if (cita.sucursal && cita.colaboradora && cita.sucursal !== sucursal) {
+          colaboradorasOcupadas.add(cita.colaboradora)
+        }
+      })
 
-    citasDelDia.forEach((cita) => {
-      if (
-        cita.sucursal &&
-        cita.colaboradora &&
-        cita.sucursal !== sucursal
-      ) {
-        colaboradorasAsignadas.add(cita.colaboradora);
-      }
-    });
+      const libres = colaboradoras.filter(colab => !colaboradorasOcupadas.has(colab))
+      setColaboradorasDisponibles(libres)
+    }
 
-    const libres = colaboradoras.filter(
-      (colab) => !colaboradorasAsignadas.has(colab)
-    );
-
-    setColaboradorasDisponibles(libres);
-  };
-
-  obtenerColaboradoras();
-}, [selectedDate, sucursal]);
-
+    obtenerColaboradoras()
+  }, [selectedDate, sucursal])
 
   const handleSubmit = async () => {
-    if (!nombre || !telefono || !servicio || !sucursal || !selectedDate || !selectedHour) {
-      toast.error("Por favor completa todos los campos")
+    if (!selectedDate || !hora || !servicio || !sucursal || !nombre || !telefono || !email) {
+      alert("Por favor, completa todos los campos obligatorios.")
       return
     }
-
-    setIsLoading(true)
-
-    const fechaCompleta = new Date(selectedDate)
-    const [hora, minutos] = selectedHour.split(":")
-    fechaCompleta.setHours(Number(hora))
-    fechaCompleta.setMinutes(Number(minutos))
 
     const snapshot = await getDocs(collection(db, "citas"))
-    const citas = snapshot.docs.map(doc => doc.data())
-    const citasExistentes = citas.filter(
-      cita =>
-        cita.colaboradora === colaboradora &&
-        format(cita.fecha.toDate(), "yyyy-MM-dd") === format(fechaCompleta, "yyyy-MM-dd")
-    )
+    const fechaStr = format(selectedDate, "yyyy-MM-dd")
 
-    if (citasExistentes.length >= 4) {
-      toast.error("La colaboradora ya tiene 4 citas ese día.")
-      setIsLoading(false)
+    const citasDelDia = snapshot.docs
+      .map(doc => doc.data())
+      .filter(cita =>
+        cita.colaboradora &&
+        cita.fecha?.toDate &&
+        format(cita.fecha.toDate(), "yyyy-MM-dd") === fechaStr &&
+        cita.hora === hora &&
+        cita.colaboradora === (colaboradora || cita.colaboradora)
+      )
+
+    const mismaFechaYColaboradora = snapshot.docs
+      .map(doc => doc.data())
+      .filter(cita =>
+        cita.colaboradora === colaboradora &&
+        cita.fecha?.toDate &&
+        format(cita.fecha.toDate(), "yyyy-MM-dd") === fechaStr
+      )
+
+    if (mismaFechaYColaboradora.length >= 4) {
+      alert("La colaboradora ya tiene 4 citas este día. Elige otra fecha u hora.")
       return
     }
+
+    const asignada = colaboradora || colaboradorasDisponibles[Math.floor(Math.random() * colaboradorasDisponibles.length)]
 
     await addDoc(collection(db, "citas"), {
       nombre,
       telefono,
+      email,
       servicio,
       sucursal,
-      colaboradora: colaboradora || "Automático",
-      fecha: Timestamp.fromDate(fechaCompleta),
+      colaboradora: asignada,
+      fecha: Timestamp.fromDate(selectedDate),
+      hora,
     })
 
-    toast.success("Cita agendada exitosamente")
-    setIsLoading(false)
+    alert("Cita agendada con éxito.")
     setNombre("")
     setTelefono("")
+    setEmail("")
     setServicio("")
     setSucursal("")
     setColaboradora("")
     setSelectedDate(undefined)
-    setSelectedHour("")
+    setHora("")
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-4 px-4">
-      <h1 className="text-2xl font-bold text-center my-4">Agenda tu cita</h1>
-      <Select value={servicio} onValueChange={setServicio}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecciona un servicio" />
-        </SelectTrigger>
-        <SelectContent>
-          {servicios.map(serv => (
-            <SelectItem key={serv} value={serv}>
-              {serv}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="max-w-xl mx-auto p-4 space-y-4">
+      <h1 className="text-3xl font-bold text-center">Agenda tu cita</h1>
 
-      <Select value={sucursal} onValueChange={setSucursal}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecciona una sucursal" />
-        </SelectTrigger>
-        <SelectContent>
-          {sucursales.map(suc => (
-            <SelectItem key={suc} value={suc}>
-              {suc}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Select value={servicio} onValueChange={setServicio}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecciona un servicio" />
+          </SelectTrigger>
+          <SelectContent>
+            {servicios.map(s => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {sucursal && (
+        <Select value={sucursal} onValueChange={setSucursal}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecciona una sucursal" />
+          </SelectTrigger>
+          <SelectContent>
+            {sucursales.map(s => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Select value={colaboradora} onValueChange={setColaboradora}>
           <SelectTrigger>
             <SelectValue placeholder="Selecciona una colaboradora (opcional)" />
           </SelectTrigger>
           <SelectContent>
             {colaboradorasDisponibles.map(c => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
+              <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-      )}
 
-      <Calendar
-        mode="single"
-        selected={selectedDate}
-        onSelect={setSelectedDate}
-        disabled={(date) => date < new Date()}
-      />
+        <div>
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            fromDate={new Date()}
+            toDate={new Date(new Date().setMonth(new Date().getMonth() + 3))}
+          />
+        </div>
+      </div>
 
-      <Select value={selectedHour} onValueChange={setSelectedHour}>
+      <Select value={hora} onValueChange={setHora}>
         <SelectTrigger>
-          <SelectValue placeholder="Selecciona una hora" />
+          <SelectValue placeholder="Selecciona la hora" />
         </SelectTrigger>
         <SelectContent>
-          {horasDisponibles.map(hora => (
-            <SelectItem key={hora} value={hora}>
-              {hora}
-            </SelectItem>
+          {horariosDisponibles.map(h => (
+            <SelectItem key={h} value={h}>{h}</SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      <Input
-        placeholder="Nombre"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-      />
-      <Input
-        placeholder="Teléfono"
-        value={telefono}
-        onChange={(e) => setTelefono(e.target.value)}
-      />
-      <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
-        {isLoading ? "Agendando..." : "Agendar cita"}
-      </Button>
+      <Input placeholder="Nombre completo" value={nombre} onChange={e => setNombre(e.target.value)} />
+      <Input placeholder="Teléfono" value={telefono} onChange={e => setTelefono(e.target.value)} />
+      <Input placeholder="Correo electrónico" value={email} onChange={e => setEmail(e.target.value)} />
+
+      <Button onClick={handleSubmit} className="w-full mt-4">Agendar cita</Button>
     </div>
   )
 }

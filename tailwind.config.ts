@@ -20,6 +20,7 @@ const config = {
     },
     extend: {
       colors: {
+        blocked: '#e11d48', // un rojo fuerte (opcional)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -1,81 +1,106 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { collection, getDocs } from "firebase/firestore"
 import { db } from "@/lib/firebase"
+import { collection, getDocs } from "firebase/firestore"
 import { format } from "date-fns"
+import { CalendarDays, Users2 } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface Cita {
   id: string
-  fecha: any
-  hora?: any
   nombre: string
-  servicio: string
+  fecha: any
   colaboradora: string
   sucursal: string
 }
 
-const colaboradoras = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
-
 export default function AdminDashboardPage() {
-  const [citasFuturas, setCitasFuturas] = useState<Cita[]>([])
-
-  // Saludo dinámico
-  const getSaludo = () => {
-    const hora = new Date().getHours()
-    if (hora < 12) return "Buen día"
-    if (hora < 19) return "Buenas tardes"
-    return "Buenas noches"
-  }
-
-  const saludo = getSaludo()
+  const [citasPorDia, setCitasPorDia] = useState<Record<string, Cita[]>>({})
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const obtenerCitas = async () => {
       const snapshot = await getDocs(collection(db, "citas"))
       const hoy = new Date()
-      const futuras = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() } as Cita))
-        .filter((cita) => {
-          if (!cita.fecha?.toDate) return false
-          return cita.fecha.toDate() >= hoy
-        })
-        .sort((a, b) => a.fecha.toDate().getTime() - b.fecha.toDate().getTime())
 
-      setCitasFuturas(futuras)
+      const citas: Cita[] = snapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          nombre: data.nombre ?? "Sin nombre",
+          fecha: data.fecha,
+          colaboradora: data.colaboradora,
+          sucursal: data.sucursal
+        }
+      })
+
+      const futuras = citas.filter(cita => {
+        const fecha = cita.fecha?.toDate ? cita.fecha.toDate() : new Date(cita.fecha)
+        return fecha >= hoy
+      })
+
+      const agrupadas: Record<string, Cita[]> = {}
+
+      futuras.forEach(cita => {
+        const fechaStr = format(
+          cita.fecha?.toDate ? cita.fecha.toDate() : new Date(cita.fecha),
+          "yyyy-MM-dd"
+        )
+        if (!agrupadas[fechaStr]) agrupadas[fechaStr] = []
+        agrupadas[fechaStr].push(cita)
+      })
+
+      setCitasPorDia(agrupadas)
+      setLoading(false)
     }
 
     obtenerCitas()
   }, [])
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">{saludo} Maravilla</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {colaboradoras.map((colab) => {
-          const citasDeColab = citasFuturas.filter(
-            (cita) => cita.colaboradora === colab
-          )
+  const saludo = () => {
+    const hora = new Date().getHours()
+    if (hora < 12) return "Buenos días"
+    if (hora < 18) return "Buenas tardes"
+    return "Buenas noches"
+  }
 
-          return (
-            <div key={colab} className="bg-white rounded shadow p-4">
-              <h2 className="text-xl font-semibold mb-2">{colab}</h2>
-              {citasDeColab.length === 0 ? (
-                <p className="text-gray-500">Sin citas futuras</p>
-              ) : (
-                <ul className="space-y-2">
-                  {citasDeColab.map((cita) => (
-                    <li key={cita.id} className="border p-2 rounded text-sm">
-                      <strong>{format(cita.fecha.toDate(), "dd MMM yyyy")}</strong> - {cita.nombre} ({cita.servicio}) <br />
-                      <span className="text-gray-500">{cita.sucursal}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )
-        })}
-      </div>
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">{saludo()} Maravilla 🌟</h1>
+
+      {loading ? (
+        <p>Cargando citas...</p>
+      ) : (
+        Object.entries(citasPorDia)
+          .sort(([fechaA], [fechaB]) => fechaA.localeCompare(fechaB))
+          .map(([fecha, citas]) => (
+            <Card key={fecha} className="mb-4">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CalendarDays size={18} />
+                  {format(new Date(fecha), "PPP", { locale: undefined })}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {citas.map(cita => (
+                  <div
+                    key={cita.id}
+                    className="border rounded p-2 flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-medium">{cita.nombre}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {cita.colaboradora} · {cita.sucursal}
+                      </p>
+                    </div>
+                    <Users2 size={18} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))
+      )}
     </div>
   )
 }
