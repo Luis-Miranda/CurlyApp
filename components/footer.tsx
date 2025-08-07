@@ -42,7 +42,7 @@ export function Footer() {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
                 <Link href="tel:+1234567890" className="hover:text-primary transition-colors">
-                  (123) 456-7890
+                  (+52) 55 1398 4809
                 </Link>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -76,9 +76,9 @@ export function Footer() {
               </Link>
             </div>
             <div className="text-sm text-muted-foreground">
-              <p>Lun-Vie: 9AM-7PM</p>
-              <p>Sab: 9AM-5PM</p>
-              <p>Dom: Closed</p>
+              <p>Lun-Vie: 10AM-7PM</p>
+              <p>Sab: 10AM-7PM</p>
+              <p>Dom: Cerrado</p>
             </div>
           </div>
         </div>

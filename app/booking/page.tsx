@@ -7,34 +7,38 @@ import { collection, getDocs, addDoc, Timestamp } from "firebase/firestore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { services } from "../data/services"
-import { Service } from "../types/service"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"] //Se tinenen que cambiar los servicios en espera a maravilla
-const sucursales = ["Av. Miguel Angel de Quevedo 520a"]
-const colaboradoras = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
+const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"] // Reemplazar por los definitivos
+const sucursales = ["Av. Miguel Ángel de Quevedo 520a"]
+const profesionales = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
 
 export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [hora, setHora] = useState("")
   const [servicio, setServicio] = useState("")
   const [sucursal, setSucursal] = useState("")
-  const [colaboradora, setColaboradora] = useState("")
+  const [profesional, setProfesional] = useState("")
   const [nombre, setNombre] = useState("")
   const [telefono, setTelefono] = useState("")
   const [email, setEmail] = useState("")
-  const [colaboradorasDisponibles, setColaboradorasDisponibles] = useState<string[]>([])
+  const [profesionalesDisponibles, setProfesionalesDisponibles] = useState<string[]>([])
 
-  // Horarios válidos
   const horariosDisponibles = [
     "10:00", "11:00", "12:00", "13:00",
     "15:00", "16:00", "17:00", "18:00"
   ]
 
   useEffect(() => {
-    const obtenerColaboradoras = async () => {
+    const obtenerProfesionales = async () => {
       if (!selectedDate || !sucursal) return
+
       const snapshot = await getDocs(collection(db, "citas"))
       const fechaStr = format(selectedDate, "yyyy-MM-dd")
 
@@ -45,19 +49,18 @@ export default function BookingPage() {
           return citaDate && format(citaDate, "yyyy-MM-dd") === fechaStr
         })
 
-      const colaboradorasOcupadas = new Set<string>()
-
+      const profesionalesOcupados = new Set<string>()
       citasDelDia.forEach(cita => {
-        if (cita.sucursal && cita.colaboradora && cita.sucursal !== sucursal) {
-          colaboradorasOcupadas.add(cita.colaboradora)
+        if (cita.sucursal && cita.profesional && cita.sucursal !== sucursal) {
+          profesionalesOcupados.add(cita.profesional)
         }
       })
 
-      const libres = colaboradoras.filter(colab => !colaboradorasOcupadas.has(colab))
-      setColaboradorasDisponibles(libres)
+      const libres = profesionales.filter(p => !profesionalesOcupados.has(p))
+      setProfesionalesDisponibles(libres)
     }
 
-    obtenerColaboradoras()
+    obtenerProfesionales()
   }, [selectedDate, sucursal])
 
   const handleSubmit = async () => {
@@ -69,30 +72,20 @@ export default function BookingPage() {
     const snapshot = await getDocs(collection(db, "citas"))
     const fechaStr = format(selectedDate, "yyyy-MM-dd")
 
-    const citasDelDia = snapshot.docs
+    const mismaFechaYProfesional = snapshot.docs
       .map(doc => doc.data())
       .filter(cita =>
-        cita.colaboradora &&
-        cita.fecha?.toDate &&
-        format(cita.fecha.toDate(), "yyyy-MM-dd") === fechaStr &&
-        cita.hora === hora &&
-        cita.colaboradora === (colaboradora || cita.colaboradora)
-      )
-
-    const mismaFechaYColaboradora = snapshot.docs
-      .map(doc => doc.data())
-      .filter(cita =>
-        cita.colaboradora === colaboradora &&
+        cita.profesional === profesional &&
         cita.fecha?.toDate &&
         format(cita.fecha.toDate(), "yyyy-MM-dd") === fechaStr
       )
 
-    if (mismaFechaYColaboradora.length >= 4) {
-      alert("La colaboradora ya tiene 4 citas este día. Elige otra fecha u hora.")
+    if (mismaFechaYProfesional.length >= 4) {
+      alert("El profesional ya tiene 4 citas este día. Elige otra fecha u hora.")
       return
     }
 
-    const asignada = colaboradora || colaboradorasDisponibles[Math.floor(Math.random() * colaboradorasDisponibles.length)]
+    const asignado = profesional || profesionalesDisponibles[Math.floor(Math.random() * profesionalesDisponibles.length)]
 
     await addDoc(collection(db, "citas"), {
       nombre,
@@ -100,7 +93,7 @@ export default function BookingPage() {
       email,
       servicio,
       sucursal,
-      colaboradora: asignada,
+      profesional: asignado,
       fecha: Timestamp.fromDate(selectedDate),
       hora,
     })
@@ -111,7 +104,7 @@ export default function BookingPage() {
     setEmail("")
     setServicio("")
     setSucursal("")
-    setColaboradora("")
+    setProfesional("")
     setSelectedDate(undefined)
     setHora("")
   }
@@ -143,27 +136,26 @@ export default function BookingPage() {
           </SelectContent>
         </Select>
 
-        <Select value={colaboradora} onValueChange={setColaboradora}>
+        <Select value={profesional} onValueChange={setProfesional}>
           <SelectTrigger>
-            <SelectValue placeholder="Selecciona una colaboradora (opcional)" />
+            <SelectValue placeholder="Selecciona un profesional (opcional)" />
           </SelectTrigger>
           <SelectContent>
-            {colaboradorasDisponibles.map(c => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
+            {(profesionalesDisponibles.length > 0 ? profesionalesDisponibles : profesionales).map(p => (
+              <SelectItem key={p} value={p}>{p}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-
-        <div>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            fromDate={new Date()}
-            toDate={new Date(new Date().setMonth(new Date().getMonth() + 3))}
-          />
-        </div>
       </div>
+
+      <Calendar
+        mode="single"
+        selected={selectedDate}
+        onSelect={setSelectedDate}
+        fromDate={new Date()}
+        toDate={new Date(new Date().setMonth(new Date().getMonth() + 3))}
+        className="w-full"
+      />
 
       <Select value={hora} onValueChange={setHora}>
         <SelectTrigger>
@@ -180,7 +172,9 @@ export default function BookingPage() {
       <Input placeholder="Teléfono" value={telefono} onChange={e => setTelefono(e.target.value)} />
       <Input placeholder="Correo electrónico" value={email} onChange={e => setEmail(e.target.value)} />
 
-      <Button onClick={handleSubmit} className="w-full mt-4">Agendar cita</Button>
+      <Button onClick={handleSubmit} className="w-full mt-4">
+        Agendar cita
+      </Button>
     </div>
   )
 }
