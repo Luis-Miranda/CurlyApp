@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { services } from "../data/services"
+import { Service } from "../types/service"
 
-const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"]
-const sucursales = ["Víctor Hugo", "División del Norte"]
+const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"] //Se tinenen que cambiar los servicios en espera a maravilla
+const sucursales = ["Av. Miguel Angel de Quevedo 520a"]
 const colaboradoras = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
 
 export default function BookingPage() {

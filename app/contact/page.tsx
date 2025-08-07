@@ -23,11 +23,11 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Av. Víctor Hugo 81
+                Av. Miguel Ángel de Quevedo 520a 
                 <br />
-                Portales Nte
+                Santa Catarina Coyoacan
                 <br />
-                CDMX, México 03303 
+                CDMX, México  
               </p>
               <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
                 <p className="text-muted-foreground">Map Integration Coming Soon</p>
@@ -46,11 +46,11 @@ export default function ContactPage() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Lunes - Viernes</span>
-                  <span>9:00 AM - 7:00 PM</span>
+                  <span>10:00 AM - 7:00 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Sabados</span>
-                  <span>9:00 AM - 5:00 PM</span>
+                  <span>10:00 AM - 7:00 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Domingos</span>
@@ -73,7 +73,7 @@ export default function ContactPage() {
                 <div>
                   <p className="font-medium">Teléfono</p>
                   <Link href="tel:+1234567890" className="text-muted-foreground hover:text-primary transition-colors">
-                    (123) 456-7890
+                    (+52) 55 1398 4809
                   </Link>
                 </div>
               </div>

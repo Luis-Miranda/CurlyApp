@@ -1,73 +1,87 @@
 import { ServiceCard } from "@/components/service-card"
+import type { Service } from "@/types/service"
 
 const services = [
   {
     id: 1,
-    title: "Curly Cut & Style",
-    description: "Specialized cutting technique for curly hair that enhances your natural curl pattern.",
-    image: "/placeholder.svg?height=300&width=400",
+    title: "Asesoría capilar",
+    description: "Evaluamos tu tipo de rizo y te orientamos con productos y técnicas personalizadas.",
     fullDescription:
-      "Our signature curly cut is designed specifically for your unique curl pattern. We use advanced cutting techniques that work with your hair's natural texture, creating shape and movement while reducing bulk. The service includes a thorough consultation, wash with curl-specific products, precision cutting, and styling with professional curl-enhancing products.",
-    requirements:
-      "Please come with clean, dry hair. Avoid using heavy products 24 hours before your appointment. Bring reference photos if you have a specific style in mind.",
-    price: "$85",
+      "La asesoría capilar incluye una evaluación de tu tipo de rizo, porosidad, densidad y estado actual del cabello. Recibirás recomendaciones de productos, rutinas y cuidados personalizados para iniciar o mejorar tu rutina capilar.",
+    requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 60,
   },
   {
     id: 2,
-    title: "Deep Conditioning Treatment",
-    description: "Intensive moisture treatment to restore and strengthen damaged curls.",
-    image: "/placeholder.svg?height=300&width=400",
+    title: "Definición de rizos",
+    description: "Realzamos tus rizos con técnicas y productos ideales para tu tipo de cabello.",
     fullDescription:
-      "Our deep conditioning treatment is a luxurious experience that penetrates deep into the hair shaft to restore moisture, elasticity, and shine. We use premium products specifically formulated for curly hair, including protein treatments when needed. The process includes scalp massage, steam treatment, and a customized mask based on your hair's specific needs.",
-    requirements:
-      "Come with freshly washed hair. Avoid using any leave-in products on the day of treatment. Allow 90 minutes for the full service.",
-    price: "$65",
+      "Este servicio incluye lavado, acondicionamiento y aplicación de productos profesionales para definir tus rizos. Usamos técnicas como scrunch, fitagem o raking según tu necesidad, finalizando con secado con difusor.",
+    requirements: "Ven con tu cabello limpio o sin enredos. Evita productos pesados los días previos.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 60,
   },
   {
     id: 3,
-    title: "Curl Refresh & Style",
-    description: "Perfect for maintaining your curls between wash days with professional styling.",
-    image: "/placeholder.svg?height=300&width=400",
+    title: "Corte rizado en seco",
+    description: "Corte especializado en seco para resaltar la forma natural de tus rizos.",
     fullDescription:
-      "Ideal for refreshing your curls between wash days or for special occasions. This service includes gentle cleansing with co-wash or low-poo, curl reactivation with professional products, and expert styling techniques to bring your curls back to life. We'll also teach you maintenance techniques to extend your style at home.",
-    requirements:
-      "Hair should be at least 2-3 days post-wash for best results. Bring any products you currently use at home for consultation.",
-    price: "$45",
+      "Realizamos un corte personalizado en seco, respetando la forma natural de tu patrón de rizo. Se adapta a tu estilo y necesidades, mejorando volumen, forma y definición.",
+    requirements: "Acude con el cabello seco, limpio y definido (sin estar recogido ni amarrado).",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 60,
   },
   {
     id: 4,
-    title: "Curly Hair Consultation",
-    description: "Comprehensive analysis and personalized care plan for your unique curl journey.",
-    image: "/placeholder.svg?height=300&width=400",
+    title: "Hidratación profunda",
+    description: "Tratamiento nutritivo que devuelve suavidad, brillo y manejabilidad a tus rizos.",
     fullDescription:
-      "A detailed consultation where we analyze your hair's porosity, curl pattern, density, and current condition. We'll discuss your hair goals, lifestyle, and create a personalized care routine. This includes product recommendations, styling techniques, and a maintenance schedule tailored specifically for you.",
-    requirements:
-      "Come with your hair in its natural state (no styling products). Bring any current products you use and be prepared to discuss your hair history and goals.",
-    price: "$35",
+      "Incluye limpieza suave, mascarilla hidratante profesional con calor o vapor para mayor penetración y finalizado con productos adecuados a tu tipo de rizo.",
+    requirements: "Cabello limpio o sin residuos. Evita cremas o aceites el día del servicio.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 60,
   },
   {
     id: 5,
-    title: "Bridal Curly Styling",
-    description: "Special occasion styling for your perfect wedding day look.",
-    image: "/placeholder.svg?height=300&width=400",
+    title: "Coloración para rizos",
+    description: "Servicio de color (tinte o fantasía) respetando la salud del rizo.",
     fullDescription:
-      "Create the perfect bridal look that celebrates your natural curls. This premium service includes a pre-wedding consultation, trial run, and the wedding day styling. We work with your vision to create a style that photographs beautifully and lasts throughout your special day. Includes touch-up kit for your wedding party.",
-    requirements:
-      "Schedule a trial run 2-4 weeks before your wedding. Bring inspiration photos and details about your dress and venue. Book 3-6 months in advance.",
-    price: "$150",
+      "Incluye diagnóstico previo, selección del tono, aplicación de color, tratamiento post-color y definición. Utilizamos productos libres de sulfatos y siliconas para proteger tu patrón de rizo.",
+    requirements: "Consulta previa para valoración. Ven con el cabello limpio, sin productos grasos.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 90,
   },
   {
     id: 6,
-    title: "Curl Training Session",
-    description: "Learn professional techniques to style and maintain your curls at home.",
-    image: "/placeholder.svg?height=300&width=400",
+    title: "Peinados para rizos",
+    description: "Peinados con y sin trenzas que realzan tu estilo respetando tus rizos.",
     fullDescription:
-      "A hands-on educational session where you'll learn professional styling techniques, product application methods, and maintenance routines. We'll work with your hair to demonstrate techniques like plopping, scrunching, and diffusing. You'll leave with confidence and the knowledge to recreate salon-quality results at home.",
-    requirements:
-      "Come with clean, damp hair. Bring your current styling products and tools. Wear comfortable clothing that you don't mind getting slightly damp.",
-    price: "$75",
+      "Ofrecemos peinados recogidos, semi recogidos o sueltos que destacan tu textura natural. Opcional uso de trenzas decorativas. Ideal para eventos especiales o sesiones de fotos.",
+    requirements: "Cabello limpio y desenredado. Traer inspiración o estilo deseado.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 60,
+  },
+  {
+    id: 7,
+    title: "Servicio infantil (niñas y niños)",
+    description: "Atención especial para pequeños con rizos, con enfoque lúdico y gentil.",
+    fullDescription:
+      "Incluye lavado suave, desenredado con técnicas sin dolor, definición o peinado básico. Orientamos a los padres sobre cuidados y productos adecuados.",
+    requirements: "Cabello limpio, evitar nudos muy fuertes. Acompañamiento de un adulto obligatorio.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "Por definir",
+    duration: 60,
   },
 ]
+
+
 
 export default function ServicesPage() {
   return (
@@ -87,3 +101,4 @@ export default function ServicesPage() {
     </div>
   )
 }
+ 
