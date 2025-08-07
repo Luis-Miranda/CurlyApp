@@ -1,121 +1,150 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Timestamp, collection, getDocs, query, where } from "firebase/firestore"
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import { startOfToday } from "date-fns"
+import { format } from "date-fns"
+import {
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+} from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 
-interface Appointment {
+type FireFecha = any // Timestamp | Date | string | undefined
+
+interface Cita {
   id: string
-  name: string
-  email: string
-  phone: string
-  notes: string
-  service: string
-  colaborador: string
-  startTime: Timestamp
-  endTime: Timestamp
+  nombre: string
+  servicio: string
+  sucursal: string
+  profesional: string
+  fecha: Date | null
+  hora: string
 }
 
-const colaboradores = ["Erika", "Laura", "Karla"]
+const sucursales = ["Av. Miguel Angel de Quevedo 520a"]
+const profesionales = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
+const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"]
 
-export default function AdminAppointmentsPage() {
-  const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [filtered, setFiltered] = useState<Appointment[]>([])
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfToday())
-  const [colabFilter, setColabFilter] = useState<string>("all")
+function toDateSafe(fecha: FireFecha): Date | null {
+  if (!fecha) return null
+  // Firestore Timestamp
+  if (typeof fecha?.toDate === "function") return fecha.toDate()
+  // JS Date
+  if (fecha instanceof Date) return fecha
+  // ISO string
+  if (typeof fecha === "string") {
+    const d = new Date(fecha)
+    return isNaN(d.getTime()) ? null : d
+  }
+  return null
+}
+
+export default function AppointmentsPage() {
+  const [citas, setCitas] = useState<Cita[]>([])
+  const [filtroSucursal, setFiltroSucursal] = useState("")
+  const [filtroProfesional, setFiltroProfesional] = useState("")
+  const [filtroServicio, setFiltroServicio] = useState("")
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      const q = query(collection(db, "citas"))
-      const snapshot = await getDocs(q)
-      const data: Appointment[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Appointment[]
-      setAppointments(data)
+    const fetchCitas = async () => {
+      const snapshot = await getDocs(collection(db, "citas"))
+      const data: Cita[] = snapshot.docs.map((docSnap) => {
+        const d = docSnap.data() as any
+        return {
+          id: docSnap.id,
+          nombre: d.nombre ?? "",
+          servicio: d.servicio ?? "",
+          sucursal: d.sucursal ?? "",
+          profesional: d.profesional ?? d.colaboradora ?? "", // compatibilidad
+          fecha: toDateSafe(d.fecha as FireFecha),
+          hora: d.hora ?? "",
+        }
+      })
+      setCitas(data)
     }
-    fetchAppointments()
+    fetchCitas()
   }, [])
 
-  useEffect(() => {
-    if (!selectedDate) return
-    const dayStart = new Date(selectedDate)
-    dayStart.setHours(0, 0, 0, 0)
-    const dayEnd = new Date(selectedDate)
-    dayEnd.setHours(23, 59, 59, 999)
-
-    const filteredResults = appointments.filter((appt) => {
-  const start = appt.startTime instanceof Timestamp
-    ? appt.startTime.toDate()
-    : new Date(appt.startTime)
-
-  return (
-    start >= dayStart &&
-    start <= dayEnd &&
-    (colabFilter === "all" || appt.colaborador === colabFilter)
+  const citasFiltradas = citas.filter((cita) =>
+    (!filtroSucursal || cita.sucursal === filtroSucursal) &&
+    (!filtroProfesional || cita.profesional === filtroProfesional) &&
+    (!filtroServicio || cita.servicio === filtroServicio)
   )
-})
-    setFiltered(filteredResults)
-  }, [appointments, selectedDate, colabFilter])
+
+  const cancelarCita = async (id: string) => {
+    if (!confirm("¿Estás seguro de cancelar esta cita?")) return
+    await deleteDoc(doc(db, "citas", id))
+    setCitas((prev) => prev.filter((c) => c.id !== id))
+  }
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Citas Programadas</h1>
-        <p className="text-muted-foreground">Filtra por fecha y colaborador</p>
+    <div className="p-8 space-y-6">
+      <h1 className="text-2xl font-bold">Citas agendadas</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Select value={filtroSucursal} onValueChange={setFiltroSucursal}>
+          <SelectTrigger><SelectValue placeholder="Filtrar por sucursal" /></SelectTrigger>
+          <SelectContent>
+            {sucursales.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filtroProfesional} onValueChange={setFiltroProfesional}>
+          <SelectTrigger><SelectValue placeholder="Filtrar por profesional" /></SelectTrigger>
+          <SelectContent>
+            {profesionales.map((p) => (<SelectItem key={p} value={p}>{p}</SelectItem>))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filtroServicio} onValueChange={setFiltroServicio}>
+          <SelectTrigger><SelectValue placeholder="Filtrar por servicio" /></SelectTrigger>
+          <SelectContent>
+            {servicios.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div>
-          <label className="text-sm font-medium">Fecha</label>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            className="rounded-md border"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">Colaborador</label>
-          <Select value={colabFilter} onValueChange={setColabFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los colaboradores" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              {colaboradores.map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.length === 0 ? (
-          <p className="text-muted-foreground">No hay citas para esta fecha</p>
-        ) : (
-          filtered.map((appt) => (
-            <Card key={appt.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">{appt.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{appt.email} | {appt.phone}</p>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <p><strong>Servicio:</strong> {appt.service}</p>
-                <p><strong>Colaborador:</strong> {appt.colaborador}</p>
-                <p><strong>Hora:</strong> {appt.startTime.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                <p><strong>Notas:</strong> {appt.notes || "-"}</p>
-              </CardContent>
-            </Card>
-          ))
-        )}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border px-4 py-2 text-left">Cliente</th>
+              <th className="border px-4 py-2 text-left">Servicio</th>
+              <th className="border px-4 py-2 text-left">Profesional</th>
+              <th className="border px-4 py-2 text-left">Sucursal</th>
+              <th className="border px-4 py-2 text-left">Fecha</th>
+              <th className="border px-4 py-2 text-left">Hora</th>
+              <th className="border px-4 py-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {citasFiltradas.map((cita) => (
+              <tr key={cita.id}>
+                <td className="border px-4 py-2">{cita.nombre || "—"}</td>
+                <td className="border px-4 py-2">{cita.servicio || "—"}</td>
+                <td className="border px-4 py-2">{cita.profesional || "—"}</td>
+                <td className="border px-4 py-2">{cita.sucursal || "—"}</td>
+                <td className="border px-4 py-2">
+                  {cita.fecha ? format(cita.fecha, "dd/MM/yyyy") : "—"}
+                </td>
+                <td className="border px-4 py-2">{cita.hora || "—"}</td>
+                <td className="border px-4 py-2 text-center">
+                  {/* TODO: ocultar si no es admin */}
+                  <Button variant="destructive" onClick={() => cancelarCita(cita.id)}>
+                    Cancelar
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {citasFiltradas.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center py-6 text-muted-foreground">
+                  No hay citas con estos filtros
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   )
