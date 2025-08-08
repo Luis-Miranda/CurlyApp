@@ -32,7 +32,7 @@ export function Footer() {
               <Link href="/contact" className="block text-muted-foreground hover:text-primary transition-colors">
                 Contacto
               </Link>
-              <Link href="/politicas" className="text-sm text-muted-foreground hover:underline">
+              <Link href="/politicas-de-reserva" className="text-sm text-muted-foreground hover:underline">
                 Políticas de reserva
               </Link>
             </div>

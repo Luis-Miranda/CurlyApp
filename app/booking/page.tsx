@@ -8,18 +8,23 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter
+} from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import PoliticasTexto from "@/components/politicas-texto"
 
 const servicios = ["Color", "Corte", "Curly Love", "Curly Detox"]
 const sucursales = ["Av. Miguel Angel de Quevedo 520a"]
 const profesionales = ["Key", "Coco", "Mali", "Con", "Mayra", "Moni", "Karla"]
-const horariosDisponibles = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00"]
+const horariosDisponibles = [
+  "10:00", "11:00", "12:00", "13:00",
+  "15:00", "16:00", "17:00", "18:00"
+]
 
 export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
@@ -31,8 +36,8 @@ export default function BookingPage() {
   const [telefono, setTelefono] = useState("")
   const [email, setEmail] = useState("")
   const [profesionalesDisponibles, setProfesionalesDisponibles] = useState<string[]>([])
-  const [mostrarModal, setMostrarModal] = useState(false)
   const [aceptaPoliticas, setAceptaPoliticas] = useState(false)
+  const [mostrarModal, setMostrarModal] = useState(false)
 
   useEffect(() => {
     const obtenerDisponibles = async () => {
@@ -62,14 +67,14 @@ export default function BookingPage() {
     obtenerDisponibles()
   }, [selectedDate, sucursal])
 
-  const handleSubmit = async () => {
-    if (!selectedDate || !hora || !servicio || !sucursal || !nombre || !telefono || !email) {
-      alert("Por favor, completa todos los campos obligatorios.")
+  const handleConfirmarCita = async () => {
+    if (!aceptaPoliticas) {
+      toast.error("Debes aceptar las políticas antes de continuar.")
       return
     }
 
-    if (!aceptaPoliticas) {
-      alert("Debes aceptar las políticas de reserva antes de continuar.")
+    if (!selectedDate || !hora || !servicio || !sucursal || !nombre || !telefono || !email) {
+      toast.error("Por favor, completa todos los campos.")
       return
     }
 
@@ -88,7 +93,7 @@ export default function BookingPage() {
     })
 
     if (citaYaExiste) {
-      alert("Ya hay una cita con esta profesional a esa hora. Elige otra hora.")
+      toast.error("Ya hay una cita con esta profesional a esa hora.")
       return
     }
 
@@ -102,7 +107,7 @@ export default function BookingPage() {
     })
 
     if (citasDelDia.length >= 4) {
-      alert("Esta profesional ya tiene 4 citas ese día. Elige otra fecha u hora.")
+      toast.error("Esta profesional ya tiene 4 citas ese día.")
       return
     }
 
@@ -115,14 +120,11 @@ export default function BookingPage() {
       profesional: profesionalAsignada,
       fecha: Timestamp.fromDate(selectedDate),
       hora,
+      aceptaPoliticas: true,
       createdAt: new Date()
     })
 
-    toast.success("🎉 ¡Cita agendada con éxito!", {
-      description: "Te esperamos en Maravilla Curly.",
-      duration: 5000,
-    })
-
+    toast.success("🎉 ¡Cita agendada con éxito!")
     setNombre("")
     setTelefono("")
     setEmail("")
@@ -132,36 +134,26 @@ export default function BookingPage() {
     setSelectedDate(undefined)
     setHora("")
     setAceptaPoliticas(false)
+    setMostrarModal(false)
   }
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       <h1 className="text-3xl font-bold text-center">Reserva tu cita</h1>
 
-      {/* Servicio */}
       <Select value={servicio} onValueChange={setServicio}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecciona un servicio" />
-        </SelectTrigger>
-        <SelectContent>
-          {servicios.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-        </SelectContent>
+        <SelectTrigger><SelectValue placeholder="Selecciona un servicio" /></SelectTrigger>
+        <SelectContent>{servicios.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
       </Select>
 
-      {/* Sucursal */}
       <Select value={sucursal} onValueChange={setSucursal}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecciona una sucursal" />
-        </SelectTrigger>
-        <SelectContent>
-          {sucursales.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-        </SelectContent>
+        <SelectTrigger><SelectValue placeholder="Selecciona una sucursal" /></SelectTrigger>
+        <SelectContent>{sucursales.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
       </Select>
 
-      {/* Fecha */}
       <div className="text-center">
         <label className="block text-sm mb-3 font-medium">Selecciona una fecha:</label>
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -172,58 +164,47 @@ export default function BookingPage() {
         </div>
       </div>
 
-      {/* Hora */}
       <Select value={hora} onValueChange={setHora}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecciona la hora" />
-        </SelectTrigger>
-        <SelectContent>
-          {horariosDisponibles.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}
-        </SelectContent>
+        <SelectTrigger><SelectValue placeholder="Selecciona la hora" /></SelectTrigger>
+        <SelectContent>{horariosDisponibles.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
       </Select>
 
-      {/* Profesional */}
       <Select value={profesional} onValueChange={setProfesional}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecciona una profesional (opcional)" />
-        </SelectTrigger>
-        <SelectContent>
-          {profesionalesDisponibles.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-        </SelectContent>
+        <SelectTrigger><SelectValue placeholder="Selecciona una profesional (opcional)" /></SelectTrigger>
+        <SelectContent>{profesionalesDisponibles.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
       </Select>
 
-      {/* Datos cliente */}
       <Input placeholder="Nombre completo" value={nombre} onChange={e => setNombre(e.target.value)} />
       <Input placeholder="Teléfono" value={telefono} onChange={e => setTelefono(e.target.value)} />
       <Input placeholder="Correo electrónico" value={email} onChange={e => setEmail(e.target.value)} />
 
-      {/* Checkbox + Modal */}
-      <div className="flex items-start gap-2 mt-4">
-        <Checkbox id="politicas" checked={aceptaPoliticas} onCheckedChange={val => setAceptaPoliticas(Boolean(val))} />
-        <Label htmlFor="politicas">
-          Acepto las{" "}
-          <Dialog>
-            <DialogTrigger asChild>
-              <span className="underline cursor-pointer text-primary">políticas de reserva</span>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>Política de Reservas y Cancelaciones</DialogTitle>
-              </DialogHeader>
-              <ScrollArea className="h-[70vh] pr-4">
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {/* Aquí va todo el texto completo que ya me compartiste de las políticas. Lo colocaré como un bloque editable aparte. */}
-                  {/* Reemplazaremos este bloque dinámicamente para mantener limpio el código aquí. */}
-                  {`⏰ Tolerancia:\n• Se permite una tolerancia máxima de 20 minutos, SIN excepciones...\n(Agrega aquí TODO el texto completo)`}
-                </div>
-              </ScrollArea>
-            </DialogContent>
-          </Dialog>
-        </Label>
-      </div>
+      <Dialog open={mostrarModal} onOpenChange={setMostrarModal}>
+        <DialogTrigger asChild>
+          <Button disabled={!nombre || !telefono || !email || !servicio || !sucursal || !hora || !selectedDate}>
+            Continuar
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Políticas de reserva</DialogTitle>
+          </DialogHeader>
 
-      {/* Botón agendar */}
-      <Button onClick={handleSubmit} className="w-full mt-4">Agendar cita</Button>
+          <ScrollArea className="h-[400px] p-4 border rounded-md">
+            <PoliticasTexto />
+          </ScrollArea>
+
+          <div className="flex items-center space-x-2 mt-4">
+            <Checkbox id="checkbox-politicas" checked={aceptaPoliticas} onCheckedChange={() => setAceptaPoliticas(!aceptaPoliticas)} />
+            <label htmlFor="checkbox-politicas" className="text-sm">
+              Acepto las políticas de reserva y cancelación
+            </label>
+          </div>
+
+          <DialogFooter>
+            <Button onClick={handleConfirmarCita} disabled={!aceptaPoliticas}>Confirmar cita</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
