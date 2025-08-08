@@ -8,8 +8,9 @@ import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { useUserRole } from "@/hooks/useUserRole"
 
-type FireFecha = any // Timestamp | Date | string | undefined
+type FireFecha = any
 
 interface Cita {
   id: string
@@ -41,30 +42,25 @@ export default function AppointmentsPage() {
   const [filtroSucursal, setFiltroSucursal] = useState("")
   const [filtroProfesional, setFiltroProfesional] = useState("")
   const [filtroServicio, setFiltroServicio] = useState("")
-  const [userRole, setUserRole] = useState("admin") // TODO: reemplazar por el rol real del usuario
+  const { role, loading } = useUserRole()
 
   useEffect(() => {
     const fetchCitas = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, "citas"))
-        const data: Cita[] = snapshot.docs.map((docSnap) => {
-          const d = docSnap.data() as any
-          return {
-            id: docSnap.id,
-            nombre: d.nombre ?? "",
-            servicio: d.servicio ?? "",
-            sucursal: d.sucursal ?? "",
-            profesional: d.profesional ?? d.colaboradora ?? "",
-            fecha: toDateSafe(d.fecha as FireFecha),
-            hora: d.hora ?? "",
-          }
-        })
-        setCitas(data)
-      } catch (error) {
-        console.error("Error al obtener citas:", error)
-      }
+      const snapshot = await getDocs(collection(db, "citas"))
+      const data: Cita[] = snapshot.docs.map((docSnap) => {
+        const d = docSnap.data() as any
+        return {
+          id: docSnap.id,
+          nombre: d.nombre ?? "",
+          servicio: d.servicio ?? "",
+          sucursal: d.sucursal ?? "",
+          profesional: d.profesional ?? d.colaboradora ?? "",
+          fecha: toDateSafe(d.fecha),
+          hora: d.hora ?? "",
+        }
+      })
+      setCitas(data)
     }
-
     fetchCitas()
   }, [])
 
@@ -76,19 +72,16 @@ export default function AppointmentsPage() {
 
   const cancelarCita = async (id: string) => {
     if (!confirm("¿Estás seguro de cancelar esta cita?")) return
-    try {
-      await deleteDoc(doc(db, "citas", id))
-      setCitas((prev) => prev.filter((c) => c.id !== id))
-    } catch (error) {
-      console.error("Error al cancelar cita:", error)
-    }
+    await deleteDoc(doc(db, "citas", id))
+    setCitas((prev) => prev.filter((c) => c.id !== id))
   }
+
+  if (loading) return <div className="p-8">Cargando...</div>
 
   return (
     <div className="p-8 space-y-6">
       <h1 className="text-2xl font-bold">Citas agendadas</h1>
 
-      {/* Filtros */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Select value={filtroSucursal} onValueChange={setFiltroSucursal}>
           <SelectTrigger><SelectValue placeholder="Filtrar por sucursal" /></SelectTrigger>
@@ -112,7 +105,6 @@ export default function AppointmentsPage() {
         </Select>
       </div>
 
-      {/* Tabla */}
       <div className="overflow-x-auto">
         <table className="min-w-full border text-sm">
           <thead>
@@ -123,7 +115,7 @@ export default function AppointmentsPage() {
               <th className="border px-4 py-2 text-left">Sucursal</th>
               <th className="border px-4 py-2 text-left">Fecha</th>
               <th className="border px-4 py-2 text-left">Hora</th>
-              {userRole === "admin" && <th className="border px-4 py-2">Acción</th>}
+              <th className="border px-4 py-2 text-center">Acción</th>
             </tr>
           </thead>
           <tbody>
@@ -134,26 +126,21 @@ export default function AppointmentsPage() {
                 <td className="border px-4 py-2">{cita.profesional || "—"}</td>
                 <td className="border px-4 py-2">{cita.sucursal || "—"}</td>
                 <td className="border px-4 py-2">
-                  {cita.fecha instanceof Date && !isNaN(cita.fecha.getTime())
-                    ? format(cita.fecha, "dd/MM/yyyy")
-                    : "—"}
+                  {cita.fecha ? format(cita.fecha, "dd/MM/yyyy") : "—"}
                 </td>
                 <td className="border px-4 py-2">{cita.hora || "—"}</td>
-                {userRole === "admin" && (
-                  <td className="border px-4 py-2 text-center">
-                    <Button
-                      variant="destructive"
-                      onClick={() => cancelarCita(cita.id)}
-                    >
+                <td className="border px-4 py-2 text-center">
+                  {role === "admin" && (
+                    <Button variant="destructive" onClick={() => cancelarCita(cita.id)}>
                       Cancelar
                     </Button>
-                  </td>
-                )}
+                  )}
+                </td>
               </tr>
             ))}
             {citasFiltradas.length === 0 && (
               <tr>
-                <td colSpan={userRole === "admin" ? 7 : 6} className="text-center py-6 text-muted-foreground">
+                <td colSpan={7} className="text-center py-6 text-muted-foreground">
                   No hay citas con estos filtros
                 </td>
               </tr>
