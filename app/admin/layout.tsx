@@ -11,6 +11,7 @@ const navItems = [
   { name: "Dashboard", href: "/admin" },
   { name: "Citas", href: "/admin/appointments" },
   { name: "Calendario", href: "/admin/calendar" },
+  { name: "Clientes", href: "/admin/clients" },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
