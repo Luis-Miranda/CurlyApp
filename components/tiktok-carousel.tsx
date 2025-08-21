@@ -20,6 +20,11 @@ const tiktokVideos = [
     url: "https://www.tiktok.com/embed/v2/7520655408386673928",
     title: "Transformación 3",
   },
+  {
+    id: 4,
+    url: "https://www.tiktok.com/embed/v2/7515441046759722248",
+    title: "Transformación 3",
+  },
 ]
 
 export function TikTokCarousel() {

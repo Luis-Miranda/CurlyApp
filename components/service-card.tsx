@@ -2,8 +2,20 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import Link from "next/link"
@@ -16,6 +28,7 @@ interface Service {
   fullDescription: string
   requirements: string
   price: string
+  calendlyUrl?: string 
 }
 
 interface ServiceCardProps {
@@ -62,7 +75,12 @@ export function ServiceCard({ service }: ServiceCardProps) {
               </DialogHeader>
               <div className="space-y-6">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                  <Image src={service.image || "/placeholder.svg"} alt={service.title} fill className="object-cover" />
+                  <Image
+                    src={service.image || "/placeholder.svg"}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -73,19 +91,35 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Descripción del servicio</h3>
-                  <p className="text-muted-foreground leading-relaxed">{service.fullDescription}</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {service.fullDescription}
+                  </p>
                 </div>
 
                 <div>
                   <h3 className="font-semibold text-lg mb-3">Previo a tu cita</h3>
-                  <p className="text-muted-foreground leading-relaxed">{service.requirements}</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {service.requirements}
+                  </p>
+                  
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <Button asChild className="flex-1">
-                    <Link href={`/booking?service=${encodeURIComponent(service.title)}`}>Agenda Ahora</Link>
-                  </Button>
-                  <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                  {service.calendlyUrl && (
+                    <Button asChild className="flex-1">
+                      <Link
+                        href={service.calendlyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Agenda Ahora
+                      </Link>
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsModalOpen(false)}
+                  >
                     No por el momento
                   </Button>
                 </div>
@@ -93,11 +127,21 @@ export function ServiceCard({ service }: ServiceCardProps) {
             </DialogContent>
           </Dialog>
 
-          <Button asChild className="w-full">
-            <Link href={`/booking?service=${encodeURIComponent(service.title)}`}>Agenda este servicio</Link>
-          </Button>
+          {service.calendlyUrl && (
+            <Button asChild className="w-full">
+              <Link
+                href={service.calendlyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Agenda este servicio
+              </Link>
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </>
+
   )
+  
 }

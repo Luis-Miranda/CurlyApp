@@ -23,14 +23,22 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                Av. Miguel Ángel de Quevedo 520a 
+                Av. Miguel Ángel de Quevedo 520a
                 <br />
                 Santa Catarina Coyoacan
                 <br />
-                CDMX, México  
+                CDMX, México
               </p>
-              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                <p className="text-muted-foreground">Map Integration Coming Soon</p>
+              <div className="aspect-video rounded-lg overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3763.294819292705!2d-99.16318012506566!3d19.3971843423435!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1ff9eaae1ea67%3A0x80427698b73f37de!2sAv.%20Miguel%20%C3%81ngel%20de%20Quevedo%20520a%2C%20Santa%20Catarina%2C%20Coyoac%C3%A1n%2C%2004050%20Ciudad%20de%20M%C3%A9xico%2C%20CDMX!5e0!3m2!1ses-419!2smx!4v1692649107305!5m2!1ses-419!2smx"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </CardContent>
           </Card>
@@ -127,7 +135,7 @@ export default function ContactPage() {
                 Programe su cita en línea o llámenos. No podemos esperar para ayudarte a abrazar tu hermosos ¡Rizos!
               </p>
               <Button asChild className="w-full">
-                <Link href="/booking">Agenda Ahora</Link>
+                <Link href="https://calendly.com/maravillacurlyexp">Agenda Ahora</Link>
               </Button>
             </CardContent>
           </Card>

@@ -1,10 +1,11 @@
-export interface Service {
-  id: number
-  title: string
-  description: string
-  fullDescription: string
-  requirements: string
-  image: string
-  price: string
-  duration: number
+export type CategoriaServicio = "regular" | "vip"
+
+export type Service = {
+  id: string
+  nombre: string
+  descripcion: string
+  duracion: string
+  precio: number
+  categoria: CategoriaServicio
+  calendlyUrl: string
 }

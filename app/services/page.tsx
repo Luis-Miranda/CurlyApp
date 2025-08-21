@@ -1,84 +1,95 @@
+"use client"
+
 import { ServiceCard } from "@/components/service-card"
-import type { Service } from "@/types/service"
+import { Service } from "../../app/types/service"
+import TikTokFloatingButton from "@/components/tiktok-floating-button"
 
 const services = [
   {
-    id: 1,
-    title: "Asesoría capilar",
-    description: "Evaluamos tu tipo de rizo y te orientamos con productos y técnicas personalizadas.",
+    id: 5,
+    title: "Toque Curly",
+    description: "Ajustes de temporada al diagnóstico anterior, corte en seco, lavado, acondicionado sencillo, estilizado express SIN cepillo y secado.",
     fullDescription:
-      "La asesoría capilar incluye una evaluación de tu tipo de rizo, porosidad, densidad y estado actual del cabello. Recibirás recomendaciones de productos, rutinas y cuidados personalizados para iniciar o mejorar tu rutina capilar.",
+      "antes corte de seguimiento:Aplica únicamente para cabellos atendidos en Maravilla Curly en los últimos 4 meses, No aplica para cabello XL o AFRO. Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. Incluye Ajustes de temporada al diagnóstico anterior, corte en seco, lavado, acondicionado sencillo, estilizado express SIN cepillo y secado.  En caso de exceder los 4 meses, o haber cortado en otro lugar previamente su cita será cancelada sin derecho a reembolso. Tolerancia máxima de 5 minutos.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
     image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
+    price: "$700",
     duration: 60,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/toque-curly"
   },
   {
-    id: 2,
-    title: "Definición de rizos",
-    description: "Realzamos tus rizos con técnicas y productos ideales para tu tipo de cabello.",
+    id: 26,
+    title: "Curly Makeover XL/AFRO",
+    description: "El favorito de las influencers: Incluye asesoría, Corte, Tratamiento de Vapor y estilizado guiado paso a paso.",
     fullDescription:
-      "Este servicio incluye lavado, acondicionamiento y aplicación de productos profesionales para definir tus rizos. Usamos técnicas como scrunch, fitagem o raking según tu necesidad, finalizando con secado con difusor.",
+      "El favorito de las influencers:INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso.",
     requirements: "Ven con tu cabello limpio o sin enredos. Evita productos pesados los días previos.",
     image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
-    duration: 60,
-  },
-  {
-    id: 3,
-    title: "Corte rizado en seco",
-    description: "Corte especializado en seco para resaltar la forma natural de tus rizos.",
-    fullDescription:
-      "Realizamos un corte personalizado en seco, respetando la forma natural de tu patrón de rizo. Se adapta a tu estilo y necesidades, mejorando volumen, forma y definición.",
-    requirements: "Acude con el cabello seco, limpio y definido (sin estar recogido ni amarrado).",
-    image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
-    duration: 60,
-  },
-  {
-    id: 4,
-    title: "Hidratación profunda",
-    description: "Tratamiento nutritivo que devuelve suavidad, brillo y manejabilidad a tus rizos.",
-    fullDescription:
-      "Incluye limpieza suave, mascarilla hidratante profesional con calor o vapor para mayor penetración y finalizado con productos adecuados a tu tipo de rizo.",
-    requirements: "Cabello limpio o sin residuos. Evita cremas o aceites el día del servicio.",
-    image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
-    duration: 60,
-  },
-  {
-    id: 5,
-    title: "Coloración para rizos",
-    description: "Servicio de color (tinte o fantasía) respetando la salud del rizo.",
-    fullDescription:
-      "Incluye diagnóstico previo, selección del tono, aplicación de color, tratamiento post-color y definición. Utilizamos productos libres de sulfatos y siliconas para proteger tu patrón de rizo.",
-    requirements: "Consulta previa para valoración. Ven con el cabello limpio, sin productos grasos.",
-    image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
-    duration: 90,
+    price: "$3,550",
+    duration: 180,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/curly-makeover-xl-afro"
   },
   {
     id: 6,
-    title: "Peinados para rizos",
-    description: "Peinados con y sin trenzas que realzan tu estilo respetando tus rizos.",
+    title: "Consulta Curly",
+    description: "Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra.",
     fullDescription:
-      "Ofrecemos peinados recogidos, semi recogidos o sueltos que destacan tu textura natural. Opcional uso de trenzas decorativas. Ideal para eventos especiales o sesiones de fotos.",
-    requirements: "Cabello limpio y desenredado. Traer inspiración o estilo deseado.",
+      "(antes asesoría) Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos",
+    requirements: "Acude con el cabello seco, limpio y definido (sin estar recogido ni amarrado).",
     image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
+    price: "$690",
     duration: 60,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/consulta-curly"
   },
   {
-    id: 7,
-    title: "Servicio infantil (niñas y niños)",
+    id: 13,
+    title: "Relax and restore",
+    description: "Tratamiento de vapor con aroma terapia, guiado por técnicas de fisioterapia.",
+    fullDescription:
+      "Tratamiento de vapor con aroma terapia, lavado en silla masajeadora, masaje de cabeza y manos guiado por técnicas de fisioterapia, estilizado suave con un momento para respirar.",
+    requirements: "Cabello limpio o sin residuos. Evita cremas o aceites el día del servicio.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: " $2,500",
+    duration: 120,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/relax-and-restore"
+  },
+  {
+    id: 11,
+    title: "Curly Makeover",
+    description: "El favorito de las influencers: Incluye asesoría, Corte, Tratamiento de Vapor y estilizado guiado paso a paso.",
+    fullDescription:
+      "El favorito de las influencers: INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso. FORMATO INFORMATIVO cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.",
+    requirements: "Consulta previa para valoración. Ven con el cabello limpio, sin productos grasos.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "$3,000",
+    duration: 120,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/curly-makeover"
+  },
+  {
+    id: 12,
+    title: "Revive tu rizo",
+    description: "Diagnóstico dermo capilar con microscopio, ajustes en la rutina de productos con receta, corte en seco, limpieza, tratamiento de vapor y estilizado.",
+    fullDescription:
+      "(antes recuperación de rizos) cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.Incluye diagnóstico dermo capilar con microscopio, ajustes en la rutina de productos con receta, corte en seco, limpieza profunda, tratamiento de vapor con ozono y estilizado guiado paso a paso.",
+    requirements: "Cabello limpio y desenredado. Traer inspiración o estilo deseado.",
+    image: "/placeholder.svg?height=300&width=400",
+    price: "$2,400",
+    duration: 120,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/revive-tu-rizo"
+  },
+  {
+    id: 25,
+    title: "Baño de vapor Afro",
     description: "Atención especial para pequeños con rizos, con enfoque lúdico y gentil.",
     fullDescription:
       "Incluye lavado suave, desenredado con técnicas sin dolor, definición o peinado básico. Orientamos a los padres sobre cuidados y productos adecuados.",
     requirements: "Cabello limpio, evitar nudos muy fuertes. Acompañamiento de un adulto obligatorio.",
     image: "/placeholder.svg?height=300&width=400",
-    price: "Por definir",
-    duration: 60,
+    price: "$2,300",
+    duration: 240,
+    calendlyUrl: "https://calendly.com/maravillacurlyexp/bano-de-vapor-afro"
   },
+
 ]
 
 
@@ -89,7 +100,7 @@ export default function ServicesPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Nuestros Servicios</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Servicios especializados diseñados para celebrar y realzar sus rizos naturales
+          Servicios especializados diseñados para celebrar y realzar sus rizos naturales, contamos con dos versiones en todos nuestros servicios, versión clásica y versión VIP.
         </p>
       </div>
 
@@ -98,6 +109,10 @@ export default function ServicesPage() {
           <ServiceCard key={service.id} service={service} />
         ))}
       </div>
+      <br />
+      <br />
+      <p className="text-2xs text-muted-foreground max-w-2xl mx-auto">Todos nuestros servicios se encuentran en moneda nacional $MXN <br />Pregunta por nuestro Servicio Curly Color solamente en recepción. <br />Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.</p>
+      <TikTokFloatingButton />
     </div>
   )
 }

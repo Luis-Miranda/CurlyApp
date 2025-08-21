@@ -9,10 +9,10 @@ import { Menu } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Services", href: "/services" },
-  { name: "Booking", href: "/booking" },
-  { name: "Contact", href: "/contact" },
+  { name: "Inicio", href: "/" },
+  { name: "Servicios", href: "/services" },
+  /* { name: "Reserva", href: "/booking" }, */
+  { name: "Contacto", href: "/contact" },
 ]
 
 export function Navigation() {
@@ -49,7 +49,7 @@ export function Navigation() {
           {/* Desktop CTA */}
           <div className="hidden md:flex">
             <Button asChild>
-              <Link href="/booking">Agenda ahora</Link>
+              <Link href="https://calendly.com/maravillacurlyexp">Agenda ahora</Link>
             </Button>
           </div>
 
