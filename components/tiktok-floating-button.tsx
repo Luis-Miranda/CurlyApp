@@ -26,7 +26,7 @@ export default function TikTokFloatingButton() {
             "bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-3 px-4 rounded-full shadow-lg",
           )}
         >
-          🎥 No sabes que servicio escoger
+          ✨ No sabes que servicio escoger
         </button>
       </DialogTrigger>
 

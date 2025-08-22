@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 const navigation = [
   { name: "Inicio", href: "/" },
   { name: "Servicios", href: "/services" },
-  /* { name: "Reserva", href: "/booking" }, */
+  { name: "Reserva", href: "/booking" }, 
   { name: "Contacto", href: "/contact" },
 ]
 
@@ -49,7 +49,7 @@ export function Navigation() {
           {/* Desktop CTA */}
           <div className="hidden md:flex">
             <Button asChild>
-              <Link href="https://calendly.com/maravillacurlyexp">Agenda ahora</Link>
+              <Link href="/booking">Agenda ahora</Link>
             </Button>
           </div>
 

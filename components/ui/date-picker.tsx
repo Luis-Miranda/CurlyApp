@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { format } from 'date-fns'
+import { addMonths, format } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -18,11 +18,14 @@ export interface DatePickerProps {
 export function DatePicker({ date, onChange, placeholder }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
 
+  const today = new Date()
+  const maxDate = addMonths(today, 3) // Más seguro que setMonth
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant={'outline'}
+          variant="outline"
           className={cn(
             'w-full justify-start text-left font-normal',
             !date && 'text-muted-foreground'
@@ -42,8 +45,15 @@ export function DatePicker({ date, onChange, placeholder }: DatePickerProps) {
           }}
           initialFocus
           captionLayout="dropdown"
-          fromYear={1940}
-          toYear={new Date().getFullYear()}
+          fromYear={today.getFullYear()}
+          toYear={maxDate.getFullYear()}
+          disabled={(date) => {
+            return (
+              date < today ||         // fechas pasadas
+              date > maxDate ||       // más de 3 meses
+              date.getDay() === 0     // domingos
+            )
+          }}
         />
       </PopoverContent>
     </Popover>

@@ -1,62 +1,73 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { signInWithEmailAndPassword } from "firebase/auth"
-import { auth } from "@/lib/firebase"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useUser } from "@/hooks/useUser"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { app } from '@/lib/firebase'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
+
+const auth = getAuth(app)
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
   const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const { user, loading } = useUser()
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
 
-  useEffect(() => {
-    if (user && !loading) {
-      router.push("/admin") // Redirige al dashboard si ya está logueado
-    }
-  }, [user, loading])
-
-  const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      router.push("/admin") // Redirige después de iniciar sesión
-    } catch (err) {
-      console.error(err)
-      setError("Correo o contraseña incorrectos.")
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const idToken = await userCredential.user.getIdToken()
+
+      // 🔐 Convertir token a session cookie
+      const res = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      })
+
+      if (!res.ok) throw new Error('No se pudo crear la sesión')
+
+      toast.success('Inicio de sesión exitoso')
+      router.push('/admin')
+    } catch (error) {
+      console.error(error)
+      toast.error('Error al iniciar sesión')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white p-6 rounded shadow space-y-4">
-        <h1 className="text-2xl font-bold text-center">Iniciar sesión</h1>
-
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6"
+      >
+        <h1 className="text-2xl font-semibold text-center">Iniciar sesión</h1>
         <Input
           type="email"
           placeholder="Correo electrónico"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
-
         <Input
           type="password"
           placeholder="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
-
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
-        <Button className="w-full" onClick={handleLogin}>
-          Entrar
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Ingresando...' : 'Ingresar'}
         </Button>
-      </div>
+      </form>
     </div>
   )
 }
