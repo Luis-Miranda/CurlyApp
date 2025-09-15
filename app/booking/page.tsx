@@ -1,241 +1,385 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { collection, addDoc, getDocs, Timestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { DatePicker } from "@/components/ui/date-picker"
-import { ModalPoliticas } from "@/components/politicas-modal"
-import { toast } from "sonner"
-import { isSameDay } from "date-fns"
+import { useEffect, useState } from 'react'
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  Timestamp,
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { format } from 'date-fns'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import { toast } from 'sonner'
+import DatePicker from '@/components/custom/date-picker'
+import { useRouter } from 'next/navigation'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel
+} from '@/components/ui/alert-dialog'
 
-const profesionales = ["Key", "Coco", "Mali", "Mayra", "Moni", "Karla", "Sin preferencia"]
-const servicios = [
-  "Toque Curly (1hr)",
-  "Curly Makeover XL/AFRO",
-  "Consulta Curly",
-  "Relax and restore",
-  "Curly Makeover",
-  "Revive tu rizo",
-  "Baño de vapor Afro",
-  "Baño de vapor XL",
-  "Rizos Hidratados XL",
-  "Rizos Hidratados",
-  "Baño de Vapor",
-  "Definición curly",
-  "Estilizate",
-  "Corte Esencial",
-  "Revive Tu Rizo XL",
-  "Afro Glow",
-  "Corte Afrorizo Poderoso",
-  "Mini Rizos",
-  "Corte Escencial XL",
-  "Rizos Masculinos",
-  "Rizos Con ciencia XL",
-  "Rizos con ciencia",
-  "Pixie Touch (45 días)",
-  "Rizos y café",
-  "Retoque de tinte",
-  "Hidratación & Pausa",
-  "Rizos Full Ritual",
-  "Color + Chill",
-  "Consulta con Hidratación"
+const profesionalesVIP = ['Keyla', 'Maravilla Curly']
+const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
+
+const horariosDisponibles = [
+  '10:00', '11:00', '12:00', '13:00',
+  '15:00', '16:00', '17:00', '18:00'
 ]
-const sucursales = ["Av. Miguel Angel de Quevedo 520a"]
-const horasDisponibles = [
-  "10:00", "11:00", "12:00", "13:00",
-  "15:00", "16:00", "17:00", "18:00"
+
+const servicios = [
+  'Corte Escencial',
+  'Mini Rizos',
+  'Rizos Masculinos',
+  'Pixie Touch (45 días)',
+  'Retoque Curly (1hr)',
+  'Consulta Curly',
+  'Rizos con Ciencia',
+  'Rizos con Ciencia XL',
+  'Afro con Ciencia',
+  'Rizos Hidratados',
+  'Baño de Vapor',
+  'Curly Makeover',
+  'Revive tu Rizo', 
+  'Relax and Restore',
+  'Rizos y café',
+  'Hidratación & Pausa',
+  'Rizos Full Ritual',
+  'Consulta con Hidratación',
+  'Color + Chill', /* Consultar con Maravilla Curly si este debe aparecer */
+  'Rizos masculinos hidratados',
+  'Rizos masculinos con ciencia',
+  'Mantenimineto Rizos Masculinos',
+  'Corte Escencial XL',
+  'Corte Afrorizo Poderoso',
+  'Afro Glow',
+  'Revive tu Rizo XL',
+  'Baño de vapor XL',
+  'Baño de vapor Afro',
+  'Curly Makeover XL',
+  'Rizos Hidratados XL',
+  'Definición Curly',
+  'Estilízate',
+  'Estilízate XL',
+  'Estilízate Afro', 
+  'Rizos de Gala',
+  'Retoque de tinte'
 ]
 
 export default function BookingPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const servicioParam = searchParams.get("servicio") || ""
-
-  const [nombre, setNombre] = useState("")
-  const [telefono, setTelefono] = useState("")
-  const [email, setEmail] = useState("")
-  const [servicio, setServicio] = useState(servicioParam)
-  const [profesional, setProfesional] = useState("")
-  const [sucursal, setSucursal] = useState("")
+  const [tipoServicio, setTipoServicio] = useState('')
+  const [profesional, setProfesional] = useState('')
   const [fecha, setFecha] = useState<Date | undefined>(undefined)
-  const [hora, setHora] = useState("")
-  const [aceptaPoliticas, setAceptaPoliticas] = useState(false)
-  const [citas, setCitas] = useState<any[]>([])
+  const [hora, setHora] = useState('')
+  const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
+  const [telefono, setTelefono] = useState('')
+  const [sucursal, setSucursal] = useState('')
+  const [servicio, setServicio] = useState('')
+  const [notas, setNotas] = useState('')
+  const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
+  const [showPoliticasModal, setShowPoliticasModal] = useState(false)
 
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
+  const [enabledMonths, setEnabledMonths] = useState<string[]>([])
+  const [blockedDaysProfesional, setBlockedDaysProfesional] = useState<Record<string, number[]>>({})
+
+  const profesionales = tipoServicio === 'VIP'
+    ? profesionalesVIP
+    : tipoServicio === 'Clásico'
+      ? profesionalesClasico
+      : []
+
+  // Obtener meses habilitados
   useEffect(() => {
-    const fetchCitas = async () => {
-      const snapshot = await getDocs(collection(db, "citas"))
-      const data = snapshot.docs.map(doc => doc.data())
-      setCitas(data)
+    const getEnabledMonths = async () => {
+      const snapshot = await getDocs(collection(db, 'enabledBookingMonths'))
+      const meses = snapshot.docs.map(doc => doc.id)
+      setEnabledMonths(meses)
     }
-    fetchCitas()
+    getEnabledMonths()
   }, [])
 
-  const handleSubmit = async () => {
-    if (!nombre || !telefono || !email || !servicio || !sucursal || !fecha || !hora || !aceptaPoliticas) {
-      toast.error("Por favor completa todos los campos.")
-      return
+  // Obtener días bloqueados por profesional
+  useEffect(() => {
+    const fetchBlocked = async () => {
+      const querySnapshot = await getDocs(collection(db, 'blockedDaysByProfessional'))
+      const data: Record<string, number[]> = {}
+      querySnapshot.forEach((doc) => {
+        data[doc.id] = doc.data().blockedWeekDays || []
+      })
+      setBlockedDaysProfesional(data)
     }
+    fetchBlocked()
+  }, [])
 
-    const fechaSeleccionada = Timestamp.fromDate(fecha)
-
-    const profesionalAsignado = profesional === "Sin preferencia"
-      ? obtenerProfesionalDisponible(fecha, hora)
-      : profesional
-
-    if (!profesionalAsignado) {
-      toast.error("No hay profesionales disponibles en este horario.")
-      return
+  // Obtener horarios ocupados
+  useEffect(() => {
+    const obtenerHorariosOcupados = async () => {
+      if (fecha && profesional) {
+        const q = query(
+          collection(db, 'citas'),
+          where('fecha', '==', format(fecha, 'yyyy-MM-dd')),
+          where('profesional', '==', profesional)
+        )
+        const snapshot = await getDocs(q)
+        const ocupados = snapshot.docs.map(doc => doc.data().hora)
+        setHorariosOcupados(ocupados)
+      } else {
+        setHorariosOcupados([])
+      }
     }
+    obtenerHorariosOcupados()
+  }, [fecha, profesional])
 
-    const citasExistentes = citas.filter(
-      (c) =>
-        c.fecha?.toDate &&
-        isSameDay(c.fecha.toDate(), fecha) &&
-        c.hora === hora &&
-        c.profesional === profesionalAsignado
-    )
-
-    if (citasExistentes.length >= 1) {
-      toast.error("Este horario ya está reservado.")
-      return
-    }
-
-    const totalCitasPorProfesional = citas.filter(
-      (c) =>
-        c.fecha?.toDate &&
-        isSameDay(c.fecha.toDate(), fecha) &&
-        c.profesional === profesionalAsignado
-    )
-
-    if (totalCitasPorProfesional.length >= 4) {
-      toast.error("Este profesional ya tiene 4 citas este día.")
-      return
-    }
-
-    await addDoc(collection(db, "citas"), {
-      nombre,
-      telefono,
-      email,
-      servicio,
-      sucursal,
-      profesional: profesionalAsignado,
-      fecha: fechaSeleccionada,
-      hora,
-      aceptaPoliticas: true,
-      createdAt: Timestamp.now(),
-    })
-
-    toast.success("Tu cita ha sido registrada correctamente 🎉")
-    router.push("/gracias")
+  // Función para saber si la fecha está bloqueada
+  const isDateBlocked = (date: Date): boolean => {
+    if (!profesional) return false
+    const blockedDays = blockedDaysProfesional[profesional] || []
+    return blockedDays.includes(date.getDay())
   }
 
-  const obtenerProfesionalDisponible = (fecha: Date, hora: string) => {
-    const disponibles = profesionales.filter((p) => {
-      if (p === "Sin preferencia") return false
-      const citasDeEseDia = citas.filter(
-        (c) =>
-          c.fecha?.toDate &&
-          isSameDay(c.fecha.toDate(), fecha) &&
-          c.profesional === p
-      )
+  const handleSubmit = async () => {
+    if (!aceptoPoliticas) {
+      setShowPoliticasModal(true)
+      return
+    }
 
-      const citasMismaHora = citasDeEseDia.filter((c) => c.hora === hora)
+    if (!tipoServicio || !profesional || !fecha || !hora || !nombre || !email || !telefono || !sucursal || !servicio) {
+      toast.error('Completa todos los campos obligatorios')
+      return
+    }
 
-      return citasDeEseDia.length < 4 && citasMismaHora.length === 0
-    })
+    if (fecha.getDay() === 0) {
+      toast.error('No se puede reservar en domingo')
+      return
+    }
 
-    return disponibles[0] || null
+    if (isDateBlocked(fecha)) {
+      toast.error(`La profesional seleccionada no labora el día elegido.`)
+      return
+    }
+
+    const formattedDate = format(fecha, 'yyyy-MM-dd')
+
+    const appointmentData = {
+      tipoServicio,
+      profesional,
+      fecha: formattedDate,
+      hora,
+      nombre,
+      email,
+      telefono,
+      sucursal,
+      servicio,
+      notas: notas || 'Sin notas',
+      aceptoPoliticas: true,
+      status: 'pendiente',
+      createdAt: Timestamp.now()
+    }
+
+    try {
+      localStorage.setItem('pendingAppointment', JSON.stringify(appointmentData))
+
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nombre,
+          email,
+          date: formattedDate,
+          time: hora
+        })
+      })
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error('Error en Stripe:', errorText)
+        toast.error('Error al crear la sesión de pago.')
+        return
+      }
+
+      const data = await res.json()
+      if (data?.sessionUrl) {
+        window.location.href = data.sessionUrl
+      } else {
+        toast.error('No se pudo redirigir a Stripe')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Hubo un error al iniciar el pago')
+    }
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-center">Reserva tu cita</h1>
+    <div className="max-w-4xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-6 text-center">Reserva tu cita</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Formulario */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <Label>Nombre completo</Label>
-          <Input value={nombre} onChange={(e) => setNombre(e.target.value)} />
-        </div>
-        <div>
-          <Label>Teléfono</Label>
-          <Input value={telefono} onChange={(e) => setTelefono(e.target.value)} />
-        </div>
-        <div>
-          <Label>Correo electrónico</Label>
-          <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <Label>Servicio</Label>
-          <Select value={servicio} onValueChange={setServicio}>
+          <Label>Tipo de servicio</Label>
+          <Select value={tipoServicio} onValueChange={setTipoServicio}>
             <SelectTrigger>
-              <SelectValue>{servicio || "Selecciona un servicio"}</SelectValue>
+              <SelectValue placeholder="Selecciona tipo de servicio" />
             </SelectTrigger>
             <SelectContent>
-              {servicios.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
+              <SelectItem value="VIP">VIP</SelectItem>
+              <SelectItem value="Clásico">Clásico</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
         <div>
           <Label>Profesional</Label>
-          <Select value={profesional} onValueChange={setProfesional}>
+          <Select value={profesional} onValueChange={setProfesional} disabled={!tipoServicio}>
             <SelectTrigger>
               <SelectValue placeholder="Selecciona una profesional" />
             </SelectTrigger>
             <SelectContent>
-              {profesionales.map((p) => (
+              {profesionales.map(p => (
                 <SelectItem key={p} value={p}>{p}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
+
+        <div>
+          <Label>Fecha</Label>
+          <DatePicker
+            date={fecha}
+            onChange={setFecha}
+            enabledMonths={enabledMonths}
+          />
+        </div>
+
+        <div>
+          <Label>Hora</Label>
+          <Select
+            value={hora}
+            onValueChange={setHora}
+            disabled={
+              !fecha || !profesional || isDateBlocked(fecha)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona una hora" />
+            </SelectTrigger>
+            <SelectContent>
+              {horariosDisponibles
+                .filter(h => !horariosOcupados.includes(h))
+                .map(h => (
+                  <SelectItem key={h} value={h}>{h}</SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div><Label>Nombre</Label><Input value={nombre} onChange={e => setNombre(e.target.value)} /></div>
+        <div><Label>Correo electrónico</Label><Input value={email} onChange={e => setEmail(e.target.value)} /></div>
+        <div><Label>Teléfono</Label><Input value={telefono} onChange={e => setTelefono(e.target.value)} /></div>
+
         <div>
           <Label>Sucursal</Label>
           <Select value={sucursal} onValueChange={setSucursal}>
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona una sucursal" />
+              <SelectValue placeholder="Selecciona la sucursal" />
             </SelectTrigger>
             <SelectContent>
-              {sucursales.map((s) => (
+              <SelectItem value="Av. Miguel Ángel de Quevedo 520a">
+                Av. Miguel Ángel de Quevedo 520a
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Servicio</Label>
+          <Select value={servicio} onValueChange={setServicio}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona un servicio" />
+            </SelectTrigger>
+            <SelectContent>
+              {servicios.map(s => (
                 <SelectItem key={s} value={s}>{s}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
+
         <div>
-          <Label>Fecha</Label>
-          <DatePicker date={fecha ?? undefined} onChange={setFecha} />
-        </div>
-        <div>
-          <Label>Hora</Label>
-          <Select value={hora} onValueChange={setHora}>
-            <SelectTrigger><SelectValue placeholder="Selecciona una hora" /></SelectTrigger>
-            <SelectContent>
-              {horasDisponibles.map((h) => (
-                <SelectItem key={h} value={h}>{h}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label>Notas</Label>
+          <Input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Opcional" />
         </div>
       </div>
 
-      <ModalPoliticas
-        checked={aceptaPoliticas}
-        onCheckChange={setAceptaPoliticas}
-      />
+      {/* Políticas */}
+      <div className="flex items-center space-x-2 mt-6">
+        <Checkbox
+          id="politicas"
+          checked={aceptoPoliticas}
+          onCheckedChange={() => setAceptoPoliticas(!aceptoPoliticas)}
+        />
+        <Label htmlFor="politicas" className="text-sm">
+          Acepto las{' '}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="text-blue-600 underline hover:text-blue-800 transition">políticas de reserva</button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Políticas de Reserva y Cancelación</AlertDialogTitle>
+              </AlertDialogHeader>
+              <div className="space-y-3 text-sm text-muted-foreground py-2">
+                <p>⏰ <strong>Tolerancia:</strong> Máximo 20 minutos. Luego se cancela sin reembolso.</p>
+                <p>🔁 <strong>Reagendar:</strong> Al menos 48h de anticipación vía WhatsApp.</p>
+                <p>❌ <strong>Cancelaciones:</strong> No hay reembolsos.</p>
+                <p>💳 <strong>Anticipo:</strong> Obligatorio para confirmar.</p>
+                <p>📍 <strong>Sucursal:</strong> Aplica solo a la elegida.</p>
+                <p>👩‍🔬 <strong>Profesionales:</strong> Puede haber cambios según disponibilidad.</p>
+              </div>
+              <div className="flex justify-end pt-4">
+                <AlertDialogCancel asChild>
+                  <Button variant="outline">Cerrar</Button>
+                </AlertDialogCancel>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
+        </Label>
+      </div>
 
-      <Button className="w-full mt-4" onClick={handleSubmit}>
-        Reservar cita
-      </Button>
+      <div className="flex justify-center mt-6">
+        <Button onClick={handleSubmit}>Pagar anticipo y agendar</Button>
+      </div>
+
+      <AlertDialog open={showPoliticasModal} onOpenChange={setShowPoliticasModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>❗ Acepta las políticas de reserva</AlertDialogTitle>
+          </AlertDialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Para continuar con la cita, es necesario aceptar las políticas de reserva.
+          </p>
+          <div className="flex justify-end pt-4">
+            <Button onClick={() => setShowPoliticasModal(false)}>Entendido</Button>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -1,59 +1,84 @@
-'use client'
+// components/ui/date-picker.tsx
+"use client"
 
-import * as React from 'react'
-import { addMonths, format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import { CalendarIcon } from "lucide-react"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button"
+import { format, isBefore, startOfDay } from "date-fns"
+import { es } from "date-fns/locale"
+import { useEffect, useState } from "react"
+import { getDocs, collection } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 
-import { cn } from '@/lib/utils'
-import { Button } from './button'
-import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { Calendar } from './calendar'
-
-export interface DatePickerProps {
+interface DatePickerProps {
   date?: Date
   onChange: (date: Date | undefined) => void
-  placeholder?: string
+  blockedDays?: string[] // formato "yyyy-MM-dd"
+  blockedWeekDays?: number[] // [0-6] para domingos, lunes, etc.
 }
 
-export function DatePicker({ date, onChange, placeholder }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false)
+export function DatePicker({
+  date,
+  onChange,
+  blockedDays = [],
+  blockedWeekDays = [],
+}: DatePickerProps) {
+  const [enabledMonths, setEnabledMonths] = useState<string[]>([])
 
-  const today = new Date()
-  const maxDate = addMonths(today, 3) // Más seguro que setMonth
+  useEffect(() => {
+    const fetchEnabledMonths = async () => {
+      const snapshot = await getDocs(collection(db, "enabledBookingMonths"))
+      const meses: string[] = []
+
+      snapshot.forEach((doc) => {
+        if (doc.data().enabled) {
+          meses.push(doc.id) // "2025-09"
+        }
+      })
+
+      setEnabledMonths(meses)
+    }
+
+    fetchEnabledMonths()
+  }, [])
+
+  const isDateDisabled = (date: Date) => {
+    const formattedDay = format(date, "yyyy-MM-dd")
+    const formattedMonth = format(date, "yyyy-MM")
+    const isPast = isBefore(startOfDay(date), startOfDay(new Date()))
+
+    return (
+      isPast ||
+      blockedDays.includes(formattedDay) ||
+      blockedWeekDays.includes(date.getDay()) ||
+      !enabledMonths.includes(formattedMonth)
+    )
+  }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
-          className={cn(
-            'w-full justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
-          )}
+          variant={"outline"}
+          className="w-full justify-start text-left font-normal"
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, 'dd/MM/yyyy') : placeholder || 'Selecciona una fecha'}
+          {date ? format(date, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
           selected={date}
-          onSelect={(selectedDate) => {
-            onChange(selectedDate)
-            setOpen(false)
-          }}
+          onSelect={onChange}
+          disabled={isDateDisabled}
           initialFocus
-          captionLayout="dropdown"
-          fromYear={today.getFullYear()}
-          toYear={maxDate.getFullYear()}
-          disabled={(date) => {
-            return (
-              date < today ||         // fechas pasadas
-              date > maxDate ||       // más de 3 meses
-              date.getDay() === 0     // domingos
-            )
-          }}
+          locale={es}
         />
       </PopoverContent>
     </Popover>

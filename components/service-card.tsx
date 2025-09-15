@@ -24,6 +24,7 @@ import { CalendarIcon } from "lucide-react"
 interface Service {
   id: number
   title: string
+  category: string
   description: string
   image: string
   fullDescription: string
@@ -64,6 +65,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
       <CardContent className="flex-1 p-6">
         <CardTitle className="mb-3 text-xl">{service.title}</CardTitle>
+        <p className="text-muted-foreground leading-relaxed">{service.category}</p> {/* Puede que se quite */}
         <p className="text-muted-foreground leading-relaxed">{service.description}</p>
       </CardContent>
 

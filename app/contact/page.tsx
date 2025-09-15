@@ -94,7 +94,7 @@ export default function ContactPage() {
                     href="mailto:hello@maravillacurly.com"
                     className="text-muted-foreground hover:text-primary transition-colors"
                   >
-                    hello@maravillacurly.com
+                    contacto@maravillacurly.com.mx
                   </Link>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function ContactPage() {
                 Programe su cita en línea o llámenos. No podemos esperar para ayudarte a abrazar tu hermosos ¡Rizos!
               </p>
               <Button asChild className="w-full">
-                <Link href="https://calendly.com/maravillacurlyexp">Agenda Ahora</Link>
+                <Link href="./booking">Agenda Ahora</Link>
               </Button>
             </CardContent>
           </Card>

@@ -50,8 +50,8 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <Link href="mailto:hello@maravillacurly.com" className="hover:text-primary transition-colors">
-                  hello@maravillacurly.com
+                <Link href="mailto:contacto@maravillacurly.com.mx" className="hover:text-primary transition-colors">
+                  contacto@maravillacurly.com.mx
                 </Link>
               </div>
             </div>

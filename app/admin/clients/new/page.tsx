@@ -1,8 +1,3 @@
-/*
-  Página: clients/new/page.tsx
-  Funcionalidad: Alta de cliente con selector de fecha, subida de fotos a Firebase Storage y guardado del URL descargable en Firestore.
-*/
-
 "use client"
 
 import { useState } from "react"
@@ -13,9 +8,9 @@ import { db, storage } from "@/lib/firebase"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { DatePicker } from "@/components/ui/date-picker"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { DatePickerSinRestricciones } from "@/components/ui/DatePickerSinRestricciones"
 
 export default function NewClientPage() {
   const router = useRouter()
@@ -44,16 +39,17 @@ export default function NewClientPage() {
     try {
       setLoading(true)
 
-      // Subir fotos y obtener URLs
+      // Subimos primero las fotos
       const urls: string[] = []
       for (const foto of fotos) {
         const fileName = `${nombre.replace(/\s/g, "_")}_${Date.now()}_${foto.name}`
         const imageRef = ref(storage, `fotos_clientes/${fileName}`)
-        await uploadBytes(imageRef, foto)
-        const url = await getDownloadURL(imageRef)
+        const snapshot = await uploadBytes(imageRef, foto)
+        const url = await getDownloadURL(snapshot.ref)
         urls.push(url)
       }
 
+      // Creamos el documento del cliente
       await addDoc(collection(db, "clientes"), {
         nombre,
         correo,
@@ -68,9 +64,9 @@ export default function NewClientPage() {
 
       toast.success("Cliente creado exitosamente")
       router.push("/admin/clients")
-    } catch (error) {
-      console.error(error)
-      toast.error("Error al crear cliente")
+    } catch (error: any) {
+      console.error("Error al crear cliente:", error)
+      toast.error("Error al crear cliente. Revisa la consola.")
     } finally {
       setLoading(false)
     }
@@ -102,7 +98,7 @@ export default function NewClientPage() {
         <Input value={municipio} onChange={(e) => setMunicipio(e.target.value)} placeholder="Municipio" />
 
         <Label>Fecha de cumpleaños</Label>
-        <DatePicker date={cumpleaños} onChange={setCumpleaños} placeholder="Selecciona una fecha" />
+        <DatePickerSinRestricciones date={cumpleaños} onChange={setCumpleaños} />
 
         <Label>Diagnóstico inicial</Label>
         <Textarea
