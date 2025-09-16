@@ -9,6 +9,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { parseISO } from "date-fns";
 
 const professionals = [
   "Keyla",
@@ -34,18 +37,26 @@ const weekDays = [
 
 export default function BlockedProfessionalsPage() {
   const [blockedDays, setBlockedDays] = useState<Record<string, number[]>>({});
+  const [blockedDates, setBlockedDates] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlocked = async () => {
       const querySnapshot = await getDocs(collection(db, "blockedDaysByProfessional"));
-      const data: Record<string, number[]> = {};
-      querySnapshot.forEach((doc) => {
-        data[doc.id] = doc.data().blockedWeekDays || [];
+      const weekData: Record<string, number[]> = {};
+      const dateData: Record<string, string[]> = {};
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        weekData[docSnap.id] = data.blockedWeekDays || [];
+        dateData[docSnap.id] = data.blockedDates || [];
       });
-      setBlockedDays(data);
+
+      setBlockedDays(weekData);
+      setBlockedDates(dateData);
       setLoading(false);
     };
+
     fetchBlocked();
   }, []);
 
@@ -62,10 +73,11 @@ export default function BlockedProfessionalsPage() {
   const saveChanges = async () => {
     try {
       await Promise.all(
-        Object.entries(blockedDays).map(([name, days]) =>
+        professionals.map((name) =>
           setDoc(doc(db, "blockedDaysByProfessional", name), {
             name,
-            blockedWeekDays: days,
+            blockedWeekDays: blockedDays[name] || [],
+            blockedDates: blockedDates[name] || [],
           })
         )
       );
@@ -79,7 +91,7 @@ export default function BlockedProfessionalsPage() {
   if (loading) return <p className="p-4">Cargando...</p>;
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Bloquear días por profesional</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {professionals.map((name) => (
@@ -87,21 +99,38 @@ export default function BlockedProfessionalsPage() {
             <CardHeader>
               <CardTitle>{name}</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {weekDays.map((day) => (
-                <div key={day.value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`${name}-${day.value}`}
-                    checked={blockedDays[name]?.includes(day.value) || false}
-                    onCheckedChange={() => toggleDay(name, day.value)}
-                  />
-                  <label htmlFor={`${name}-${day.value}`}>{day.label}</label>
-                </div>
-              ))}
+            <CardContent className="flex flex-col gap-4">
+              {/* Días de la semana */}
+              <div className="flex flex-wrap gap-2">
+                {weekDays.map((day) => (
+                  <div key={day.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`${name}-${day.value}`}
+                      checked={blockedDays[name]?.includes(day.value) || false}
+                      onCheckedChange={() => toggleDay(name, day.value)}
+                    />
+                    <label htmlFor={`${name}-${day.value}`}>{day.label}</label>
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendario de fechas específicas */}
+              <div className="w-full mt-2">
+                <p className="text-sm font-semibold mb-2">Fechas bloqueadas:</p>
+                <Calendar
+                  mode="multiple"
+                  selected={blockedDates[name]?.map((d) => parseISO(d))}
+                  onSelect={(dates) => {
+                    const formatted = dates?.map((d) => format(d, "yyyy-MM-dd")) || [];
+                    setBlockedDates((prev) => ({ ...prev, [name]: formatted }));
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
       <Button onClick={saveChanges} className="mt-6 w-full md:w-auto">
         Guardar cambios
       </Button>

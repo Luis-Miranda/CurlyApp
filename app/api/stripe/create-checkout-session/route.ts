@@ -29,14 +29,14 @@ export async function POST(req: Request) {
       allow_promotion_codes: true,
       customer_email: email,
       metadata: { name, date, time },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/thank-you`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking`,
+      success_url: `https://www.maravillacurly.com.mx/booking/thank-you`,
+      cancel_url: `https://www.maravillacurly.com.mx/booking`,
     })
 
     return NextResponse.json({ sessionUrl: session.url })
-  } catch (err) {
-    console.error('Error creando sesión de Stripe:', err)
-    return new NextResponse('Error creando sesión de Stripe', { status: 500 })
-  }
+  }  catch (error) {
+  console.error("Error al crear sesión:", error instanceof Error ? error.message : error)
+  return NextResponse.json({ error: "Error al crear la sesión" }, { status: 500 })
+}
 }
 

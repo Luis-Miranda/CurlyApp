@@ -9,10 +9,10 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Maravilla Curly - Expert Curly Hair Care & Styling",
+  title: "Maravilla Curly - Experta en Cuidado y Estilizado del Cabello Rizado",
   description:
-    "Celebrating the natural beauty of your curls with expert care, specialized techniques, and personalized styling. Book your curly hair transformation today.",
-  keywords: "curly hair, hair salon, curly hair cut, hair styling, Miami salon, curl specialist",
+    "Celebrando la belleza natural de tus rizos con un cuidado experto, técnicas especializadas y un peinado personalizado. Reserva la transformación de tus rizos hoy.",
+  keywords: "Cabello rizado, chinos, curly, salón de cabello, corte de cabello curly, estilizado de cabello, CDMX Salón, especialista en curly",
 }
 
 export default function RootLayout({

@@ -1,3 +1,5 @@
+// booking/page.tsx (actualizado)
+
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -10,30 +12,24 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { format } from 'date-fns'
+import { toast } from 'sonner'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+// UI
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select'
-import { toast } from 'sonner'
-import DatePicker from '@/components/custom/date-picker'
-import { useRouter } from 'next/navigation'
 import { Checkbox } from '@/components/ui/checkbox'
+import DatePicker from '@/components/custom/date-picker'
 import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogCancel
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem
+} from '@/components/ui/select'
+import {
+  AlertDialog, AlertDialogTrigger, AlertDialogContent,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogCancel
 } from '@/components/ui/alert-dialog'
-import { useSearchParams } from 'next/navigation'
 
+// Datos y constantes
 const profesionalesVIP = ['Keyla', 'Maravilla Curly']
 const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
 
@@ -41,21 +37,6 @@ const horariosDisponibles = [
   '10:00', '11:00', '12:00', '13:00',
   '15:00', '16:00', '17:00', '18:00'
 ]
-
-const esHorarioDisponible = (hora: string, ocupados: string[], bloques: number): boolean => {
-  const startIndex = horariosDisponibles.indexOf(hora)
-
-  if (startIndex === -1) return false
-
-  for (let i = 0; i < bloques; i++) {
-    const bloque = horariosDisponibles[startIndex + i]
-    if (!bloque || ocupados.includes(bloque)) {
-      return false
-    }
-  }
-
-  return true
-}
 
 const servicios = [
   'Corte Esencial',
@@ -115,7 +96,7 @@ const duracionesPorServicio: Record<string, number> = {
   'Hidratación & Pausa': 120,
   'Rizos Full Ritual': 150,
   'Consulta con Hidratación': 60,
-  'Color + Chill': 120, /* Consultar con Maravilla Curly si este debe aparecer */
+  'Color + Chill': 120,
   'Rizos masculinos hidratados': 90,
   'Rizos masculinos con ciencia': 90,
   'Mantenimineto Rizos Masculinos': 90,
@@ -135,12 +116,22 @@ const duracionesPorServicio: Record<string, number> = {
   'Retoque de tinte': 120
 }
 
-const obtenerBloques = (duracionMin: number): number =>
-  Math.ceil(duracionMin / 60)
+const obtenerBloques = (duracionMin: number): number => Math.ceil(duracionMin / 60)
+
+const esHorarioDisponible = (hora: string, ocupados: string[], bloques: number): boolean => {
+  const startIndex = horariosDisponibles.indexOf(hora)
+  if (startIndex === -1) return false
+  for (let i = 0; i < bloques; i++) {
+    const bloque = horariosDisponibles[startIndex + i]
+    if (!bloque || ocupados.includes(bloque)) return false
+  }
+  return true
+}
 
 export default function BookingPage() {
   const router = useRouter()
-  /*   const searchParams = useSearchParams() */
+  const searchParams = useSearchParams()
+
   const [tipoServicio, setTipoServicio] = useState('')
   const [profesional, setProfesional] = useState('')
   const [fecha, setFecha] = useState<Date | undefined>(undefined)
@@ -149,55 +140,48 @@ export default function BookingPage() {
   const [email, setEmail] = useState('')
   const [telefono, setTelefono] = useState('')
   const [sucursal, setSucursal] = useState('')
-  /* const servicioDesdeURL = searchParams.get('servicio') || ''
-  const [servicio, setServicio] = useState(servicioDesdeURL) */
   const [servicio, setServicio] = useState('')
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const servicioDesdeURL = searchParams.get('servicio')
-    if (servicioDesdeURL && servicio === '') {
-      setServicio(servicioDesdeURL)
-    }
-  }, [searchParams, servicio])
   const [notas, setNotas] = useState('')
   const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
   const [showPoliticasModal, setShowPoliticasModal] = useState(false)
 
+  const profesionales = tipoServicio === 'VIP' ? profesionalesVIP : tipoServicio === 'Clásico' ? profesionalesClasico : []
+
   const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
   const [enabledMonths, setEnabledMonths] = useState<string[]>([])
   const [blockedDaysProfesional, setBlockedDaysProfesional] = useState<Record<string, number[]>>({})
+  const [blockedDatesProfesional, setBlockedDatesProfesional] = useState<Record<string, string[]>>({})
 
-  const profesionales = tipoServicio === 'VIP'
-    ? profesionalesVIP
-    : tipoServicio === 'Clásico'
-      ? profesionalesClasico
-      : []
-
-  // Obtener meses habilitados
   useEffect(() => {
-    const getEnabledMonths = async () => {
+    const servicioDesdeURL = searchParams.get('servicio')
+    if (servicioDesdeURL && servicio === '') setServicio(servicioDesdeURL)
+  }, [searchParams, servicio])
+
+  useEffect(() => {
+    const fetchEnabledMonths = async () => {
       const snapshot = await getDocs(collection(db, 'enabledBookingMonths'))
       const meses = snapshot.docs.map(doc => doc.id)
       setEnabledMonths(meses)
     }
-    getEnabledMonths()
+    fetchEnabledMonths()
   }, [])
 
-  // Obtener días bloqueados por profesional
   useEffect(() => {
     const fetchBlocked = async () => {
-      const querySnapshot = await getDocs(collection(db, 'blockedDaysByProfessional'))
-      const data: Record<string, number[]> = {}
-      querySnapshot.forEach((doc) => {
-        data[doc.id] = doc.data().blockedWeekDays || []
+      const snapshot = await getDocs(collection(db, 'blockedDaysByProfessional'))
+      const daysData: Record<string, number[]> = {}
+      const datesData: Record<string, string[]> = {}
+      snapshot.forEach(doc => {
+        const data = doc.data()
+        daysData[doc.id] = data.blockedWeekDays || []
+        datesData[doc.id] = data.blockedDates || []
       })
-      setBlockedDaysProfesional(data)
+      setBlockedDaysProfesional(daysData)
+      setBlockedDatesProfesional(datesData)
     }
     fetchBlocked()
   }, [])
 
-  // Obtener horarios ocupados
   useEffect(() => {
     const obtenerHorariosOcupados = async () => {
       if (fecha && profesional && servicio) {
@@ -209,35 +193,29 @@ export default function BookingPage() {
         const snapshot = await getDocs(q)
 
         const ocupados: string[] = []
-        const bloquesServicio = obtenerBloques(duracionesPorServicio[servicio] || 60)
-
         snapshot.docs.forEach(doc => {
-          const horaInicio = doc.data().hora // Ejemplo: '10:00'
+          const horaInicio = doc.data().hora
           const bloquesCita = obtenerBloques(duracionesPorServicio[doc.data().servicio] || 60)
           const indexInicio = horariosDisponibles.indexOf(horaInicio)
-
-          if (indexInicio !== -1) {
-            for (let i = 0; i < bloquesCita; i++) {
-              const bloque = horariosDisponibles[indexInicio + i]
-              if (bloque) ocupados.push(bloque)
-            }
+          for (let i = 0; i < bloquesCita; i++) {
+            const bloque = horariosDisponibles[indexInicio + i]
+            if (bloque) ocupados.push(bloque)
           }
         })
-
         setHorariosOcupados(ocupados)
       } else {
         setHorariosOcupados([])
       }
     }
-
     obtenerHorariosOcupados()
   }, [fecha, profesional, servicio])
 
-  // Función para saber si la fecha está bloqueada
   const isDateBlocked = (date: Date): boolean => {
     if (!profesional) return false
     const blockedDays = blockedDaysProfesional[profesional] || []
-    return blockedDays.includes(date.getDay())
+    const blockedDates = blockedDatesProfesional[profesional] || []
+    const formatted = format(date, 'yyyy-MM-dd')
+    return blockedDays.includes(date.getDay()) || blockedDates.includes(formatted)
   }
 
   const handleSubmit = async () => {
@@ -261,6 +239,7 @@ export default function BookingPage() {
       return
     }
 
+    const duracion = duracionesPorServicio[servicio] || 60
     const formattedDate = format(fecha, 'yyyy-MM-dd')
 
     const appointmentData = {
@@ -273,6 +252,7 @@ export default function BookingPage() {
       telefono,
       sucursal,
       servicio,
+      duracion, // ✅ duración incluida
       notas: notas || 'Sin notas',
       aceptoPoliticas: true,
       status: 'pendiente',
@@ -285,20 +265,8 @@ export default function BookingPage() {
       const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: nombre,
-          email,
-          date: formattedDate,
-          time: hora
-        })
+        body: JSON.stringify({ name: nombre, email, date: formattedDate, time: hora })
       })
-
-      if (!res.ok) {
-        const errorText = await res.text()
-        console.error('Error en Stripe:', errorText)
-        toast.error('Error al crear la sesión de pago.')
-        return
-      }
 
       const data = await res.json()
       if (data?.sessionUrl) {

@@ -1,4 +1,6 @@
-import { initializeApp, cert, getApps } from "firebase-admin/app"
+// lib/firebase-admin.ts
+
+import { initializeApp, cert, getApps, App } from "firebase-admin/app"
 import { getAuth } from "firebase-admin/auth"
 
 const serviceAccount = {
@@ -14,9 +16,12 @@ const serviceAccount = {
   client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
 }
 
-const app =
+const adminApp: App =
   getApps().length === 0
-    ? initializeApp({ credential: cert(serviceAccount as any) })
+    ? initializeApp({
+        credential: cert(serviceAccount as any),
+      })
     : getApps()[0]
 
-export const adminAuth = getAuth(app)
+export const adminAuth = getAuth(adminApp)
+export { adminApp }
