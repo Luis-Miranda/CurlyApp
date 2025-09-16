@@ -58,7 +58,7 @@ const esHorarioDisponible = (hora: string, ocupados: string[], bloques: number):
 }
 
 const servicios = [
-  'Corte Escencial',
+  'Corte Esencial',
   'Mini Rizos',
   'Rizos Masculinos',
   'Pixie Touch (45 días)',
@@ -97,7 +97,7 @@ const servicios = [
 ]
 
 const duracionesPorServicio: Record<string, number> = {
-  'Corte Escencial': 120,
+  'Corte Esencial': 120,
   'Mini Rizos': 120,
   'Rizos Masculinos': 90,
   'Pixie Touch (45 días)': 120,
