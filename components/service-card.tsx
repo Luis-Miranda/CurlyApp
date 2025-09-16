@@ -30,6 +30,7 @@ interface Service {
   fullDescription: string
   requirements: string
   price: string
+  duration?: number
 }
 
 interface ServiceCardProps {
@@ -67,6 +68,11 @@ export function ServiceCard({ service }: ServiceCardProps) {
         <CardTitle className="mb-3 text-xl">{service.title}</CardTitle>
         <p className="text-muted-foreground leading-relaxed">{service.category}</p> {/* Puede que se quite */}
         <p className="text-muted-foreground leading-relaxed">{service.description}</p>
+        {/* {service.duration && (
+  <p className="text-muted-foreground text-sm mt-2">
+    ⏱️ Duración: {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
+  </p>
+)} */}
       </CardContent>
 
       <CardFooter className="p-6 pt-0 flex flex-col gap-3">
@@ -91,9 +97,17 @@ export function ServiceCard({ service }: ServiceCardProps) {
               </div>
 
               <div className="flex items-center justify-between">
+                {/* <Badge variant="secondary" className="text-lg px-4 py-2">
+                  {service.price}
+                </Badge> */}
                 <Badge variant="secondary" className="text-lg px-4 py-2">
                   {service.price}
                 </Badge>
+                {service.duration && (
+                  <span className="text-sm text-muted-foreground ml-4">
+                    ⏱️ {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
+                  </span>
+                )}
               </div>
 
               <div>

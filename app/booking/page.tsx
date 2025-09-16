@@ -32,6 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogCancel
 } from '@/components/ui/alert-dialog'
+import { useSearchParams } from 'next/navigation'
 
 const profesionalesVIP = ['Keyla', 'Maravilla Curly']
 const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
@@ -40,6 +41,21 @@ const horariosDisponibles = [
   '10:00', '11:00', '12:00', '13:00',
   '15:00', '16:00', '17:00', '18:00'
 ]
+
+const esHorarioDisponible = (hora: string, ocupados: string[], bloques: number): boolean => {
+  const startIndex = horariosDisponibles.indexOf(hora)
+
+  if (startIndex === -1) return false
+
+  for (let i = 0; i < bloques; i++) {
+    const bloque = horariosDisponibles[startIndex + i]
+    if (!bloque || ocupados.includes(bloque)) {
+      return false
+    }
+  }
+
+  return true
+}
 
 const servicios = [
   'Corte Escencial',
@@ -54,7 +70,7 @@ const servicios = [
   'Rizos Hidratados',
   'Baño de Vapor',
   'Curly Makeover',
-  'Revive tu Rizo', 
+  'Revive tu Rizo',
   'Relax and Restore',
   'Rizos y café',
   'Hidratación & Pausa',
@@ -75,13 +91,56 @@ const servicios = [
   'Definición Curly',
   'Estilízate',
   'Estilízate XL',
-  'Estilízate Afro', 
+  'Estilízate Afro',
   'Rizos de Gala',
   'Retoque de tinte'
 ]
 
+const duracionesPorServicio: Record<string, number> = {
+  'Corte Escencial': 120,
+  'Mini Rizos': 120,
+  'Rizos Masculinos': 90,
+  'Pixie Touch (45 días)': 120,
+  'Retoque Curly (1hr)': 60,
+  'Consulta Curly': 60,
+  'Rizos con Ciencia': 120,
+  'Rizos con Ciencia XL': 180,
+  'Afro con Ciencia': 240,
+  'Rizos Hidratados': 120,
+  'Baño de Vapor': 120,
+  'Curly Makeover': 120,
+  'Revive tu Rizo': 120,
+  'Relax and Restore': 120,
+  'Rizos y café': 120,
+  'Hidratación & Pausa': 120,
+  'Rizos Full Ritual': 150,
+  'Consulta con Hidratación': 60,
+  'Color + Chill': 120, /* Consultar con Maravilla Curly si este debe aparecer */
+  'Rizos masculinos hidratados': 90,
+  'Rizos masculinos con ciencia': 90,
+  'Mantenimineto Rizos Masculinos': 90,
+  'Corte Escencial XL': 180,
+  'Corte Afrorizo Poderoso': 240,
+  'Afro Glow': 240,
+  'Revive tu Rizo XL': 180,
+  'Baño de vapor XL': 180,
+  'Baño de vapor Afro': 240,
+  'Curly Makeover XL': 180,
+  'Rizos Hidratados XL': 120,
+  'Definición Curly': 60,
+  'Estilízate': 60,
+  'Estilízate XL': 120,
+  'Estilízate Afro': 90,
+  'Rizos de Gala': 60,
+  'Retoque de tinte': 120
+}
+
+const obtenerBloques = (duracionMin: number): number =>
+  Math.ceil(duracionMin / 60)
+
 export default function BookingPage() {
   const router = useRouter()
+  /*   const searchParams = useSearchParams() */
   const [tipoServicio, setTipoServicio] = useState('')
   const [profesional, setProfesional] = useState('')
   const [fecha, setFecha] = useState<Date | undefined>(undefined)
@@ -90,7 +149,17 @@ export default function BookingPage() {
   const [email, setEmail] = useState('')
   const [telefono, setTelefono] = useState('')
   const [sucursal, setSucursal] = useState('')
+  /* const servicioDesdeURL = searchParams.get('servicio') || ''
+  const [servicio, setServicio] = useState(servicioDesdeURL) */
   const [servicio, setServicio] = useState('')
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const servicioDesdeURL = searchParams.get('servicio')
+    if (servicioDesdeURL && servicio === '') {
+      setServicio(servicioDesdeURL)
+    }
+  }, [searchParams, servicio])
   const [notas, setNotas] = useState('')
   const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
   const [showPoliticasModal, setShowPoliticasModal] = useState(false)
@@ -131,21 +200,38 @@ export default function BookingPage() {
   // Obtener horarios ocupados
   useEffect(() => {
     const obtenerHorariosOcupados = async () => {
-      if (fecha && profesional) {
+      if (fecha && profesional && servicio) {
         const q = query(
           collection(db, 'citas'),
           where('fecha', '==', format(fecha, 'yyyy-MM-dd')),
           where('profesional', '==', profesional)
         )
         const snapshot = await getDocs(q)
-        const ocupados = snapshot.docs.map(doc => doc.data().hora)
+
+        const ocupados: string[] = []
+        const bloquesServicio = obtenerBloques(duracionesPorServicio[servicio] || 60)
+
+        snapshot.docs.forEach(doc => {
+          const horaInicio = doc.data().hora // Ejemplo: '10:00'
+          const bloquesCita = obtenerBloques(duracionesPorServicio[doc.data().servicio] || 60)
+          const indexInicio = horariosDisponibles.indexOf(horaInicio)
+
+          if (indexInicio !== -1) {
+            for (let i = 0; i < bloquesCita; i++) {
+              const bloque = horariosDisponibles[indexInicio + i]
+              if (bloque) ocupados.push(bloque)
+            }
+          }
+        })
+
         setHorariosOcupados(ocupados)
       } else {
         setHorariosOcupados([])
       }
     }
+
     obtenerHorariosOcupados()
-  }, [fecha, profesional])
+  }, [fecha, profesional, servicio])
 
   // Función para saber si la fecha está bloqueada
   const isDateBlocked = (date: Date): boolean => {
@@ -282,7 +368,7 @@ export default function BookingPage() {
             </SelectTrigger>
             <SelectContent>
               {horariosDisponibles
-                .filter(h => !horariosOcupados.includes(h))
+                .filter(h => esHorarioDisponible(h, horariosOcupados, obtenerBloques(duracionesPorServicio[servicio] || 60)))
                 .map(h => (
                   <SelectItem key={h} value={h}>{h}</SelectItem>
                 ))}
