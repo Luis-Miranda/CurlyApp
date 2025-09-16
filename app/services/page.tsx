@@ -222,18 +222,6 @@ const services = [
     duration: 60
   },
   {
-    id: 19,
-    title: "Color + Chill",
-    category: "Paquete",
-    description: "Diagnostico dermocapilar con microscopio, evaluación,limpieza profunda, Hidratación sencilla.",
-    fullDescription:
-      "Tinte o retoque + estilizado + café o matcha + snack. Ideal para un cambio con calma.  Costo de la versión VIP desde $1900 mxn.",
-    requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen 2A-3B*/
-    price: "Desde $1700",
-    duration: 120
-  },
-  {
     id: 20,
     title: "Rizos masculinos hidratados",
     category: "Paquete",

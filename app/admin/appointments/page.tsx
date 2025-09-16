@@ -28,7 +28,7 @@ interface Cita {
   id: string
   nombre: string
   email: string
-  telefono: string
+  telefono: string  /* Whatsapp */
   profesional: string
   sucursal: string
   tipoServicio: string

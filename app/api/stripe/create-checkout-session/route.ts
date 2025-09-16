@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         {
           price_data: {
             currency: 'mxn',
-            unit_amount: 40000, /* 40000 */
+            unit_amount: 30000, /* 40000 */
             product_data: {
               name: `Anticipo Maravilla Curly - ${date} - ${time}`,
               description: `Cliente: ${name}`,

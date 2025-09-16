@@ -57,7 +57,6 @@ const servicios = [
   'Hidratación & Pausa',
   'Rizos Full Ritual',
   'Consulta con Hidratación',
-  'Color + Chill', /* Consultar con Maravilla Curly si este debe aparecer */
   'Rizos masculinos hidratados',
   'Rizos masculinos con ciencia',
   'Mantenimineto Rizos Masculinos',
@@ -96,7 +95,6 @@ const duracionesPorServicio: Record<string, number> = {
   'Hidratación & Pausa': 120,
   'Rizos Full Ritual': 150,
   'Consulta con Hidratación': 60,
-  'Color + Chill': 120,
   'Rizos masculinos hidratados': 90,
   'Rizos masculinos con ciencia': 90,
   'Mantenimineto Rizos Masculinos': 90,
