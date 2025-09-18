@@ -28,8 +28,10 @@ export async function POST(req: Request) {
         },
       ],
       customer_email: email,
+      metadata: { name, date, time },
+  allow_promotion_codes: true,
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/thank-you?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking`,
+cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking`,
     })
 
     console.log("✅ Session creada:", session)
