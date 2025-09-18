@@ -413,18 +413,6 @@ const services = [
     price: "desde $850",
     duration: 60
   },
-  {
-    id: 37,
-    title: "Retoque de tinte",
-    category: "Tintes",
-    description: "Diagnostico, limpieza profunda, estilizado, puede aumentar el costo del servicio dependiedno la densidad y el largo.",
-    fullDescription:
-      "Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, estilizado (definición + secado) guiado por pasos el precio puede aumentar dependiendo de la densidad y largo. Costo de la versión VIP desde $900 mxn.",
-    requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/retoque-curly.jpg", /* Imágen Afro*/
-    price: "desde $750",
-    duration: 120
-  },
 
 ]
 
