@@ -120,7 +120,7 @@ export default function ThankYouPage() {
   }, [router, sessionId])
 
   if (loading) {
-    return <p className="text-center py-10">Procesando pago y confirmando tu cita...</p>
+    return <p className="text-center py-10">Procesando pago y confirmando tu cita....</p>
   }
 
   if (!appointment) return null
