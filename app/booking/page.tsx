@@ -227,7 +227,7 @@ export default function BookingPage() {
 
     try {
       localStorage.setItem('pendingAppointment', JSON.stringify(appointmentData))
-      const res = await fetch('/api/stripe/create-checkout-session', {
+      const res = await fetch('/api/stripe/create-checkout-session/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: nombre, email, date: formattedDate, time: hora })

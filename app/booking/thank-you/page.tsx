@@ -1,3 +1,4 @@
+// app/booking/thank-you/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -40,7 +41,7 @@ const duracionesPorServicio: Record<string, number> = {
   'Estilízate': 60,
   'Estilízate XL': 120,
   'Estilízate Afro': 90,
-  'Rizos de Gala': 60
+  'Rizos de Gala': 60,
 }
 
 export default function ThankYouPage() {
@@ -52,30 +53,34 @@ export default function ThankYouPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem('pendingAppointment')
-    const confirmed = localStorage.getItem('appointmentConfirmed')
-
-    if (!saved || confirmed === 'true') {
+    if (!sessionId) {
       router.push('/booking')
       return
     }
 
-    const data = JSON.parse(saved)
-    setAppointment(data)
-
-    const confirmarPagoYCita = async () => {
+    const confirmarCita = async () => {
       try {
-        // 1. Validar en Stripe
+        // 1. Consultar la sesión de Stripe
         const res = await fetch(`/api/stripe/check-session?session_id=${sessionId}`)
         const stripeData = await res.json()
 
-        if (stripeData.payment_status !== 'paid') {
+        if (!res.ok || stripeData.payment_status !== 'paid') {
           toast.error('El pago no fue confirmado.')
           router.push('/booking')
           return
         }
 
-        // 2. Guardar en Firestore
+        // 2. Recuperar los datos de la cita desde localStorage
+        const saved = localStorage.getItem('pendingAppointment')
+        if (!saved) {
+          toast.error('No encontramos tu cita pendiente.')
+          router.push('/booking')
+          return
+        }
+
+        const data = JSON.parse(saved)
+
+        // 3. Guardar en Firestore
         const duracion = duracionesPorServicio[data.servicio] || 60
 
         await addDoc(collection(db, 'citas'), {
@@ -90,11 +95,11 @@ export default function ThankYouPage() {
           servicio: data.servicio,
           duracion,
           notas: data.notas || 'Sin notas',
-          status: 'por confirmar', // se queda pendiente
-          createdAt: Timestamp.now()
+          status: 'por confirmar', // se queda pendiente hasta que admin confirme
+          createdAt: Timestamp.now(),
         })
 
-        // 3. Enviar correo
+        // 4. Enviar correo de confirmación
         await fetch('/api/send-confirmation-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -102,25 +107,27 @@ export default function ThankYouPage() {
             email: data.email,
             name: data.nombre,
             date: data.fecha,
-            time: data.hora
-          })
+            time: data.hora,
+          }),
         })
 
         toast.success('¡Tu cita fue registrada! 🎉')
         localStorage.setItem('appointmentConfirmed', 'true')
+        setAppointment(data)
       } catch (error) {
         console.error('Error al confirmar cita:', error)
         toast.error('No se pudo confirmar tu cita.')
+        router.push('/booking')
       } finally {
         setLoading(false)
       }
     }
 
-    if (sessionId) confirmarPagoYCita()
+    confirmarCita()
   }, [router, sessionId])
 
   if (loading) {
-    return <p className="text-center py-10">Procesando pago y confirmando tu cita....</p>
+    return <p className="text-center py-10">Procesando pago y confirmando tu cita...</p>
   }
 
   if (!appointment) return null

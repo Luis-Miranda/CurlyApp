@@ -2,9 +2,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil', // usa una versión estable
-})
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(req: Request) {
   const { name, email, date, time } = await req.json()
@@ -17,7 +15,7 @@ export async function POST(req: Request) {
         {
           price_data: {
             currency: 'mxn',
-            unit_amount: 30000, // 400 MXN en centavos
+            unit_amount: 30000, // 300 MXN en centavos
             product_data: {
               name: `Anticipo Maravilla Curly - ${date} - ${time}`,
               description: `Cliente: ${name}`,
@@ -35,7 +33,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ sessionUrl: session.url })
   } catch (error) {
-    console.error("Error al crear sesión:", error instanceof Error ? error.message : error)
-    return NextResponse.json({ error: "Error al crear la sesión" }, { status: 500 })
+    console.error(
+      'Error al crear sesión:',
+      error instanceof Error ? error.message : error
+    )
+    return NextResponse.json(
+      { error: 'Error al crear la sesión' },
+      { status: 500 }
+    )
   }
 }
