@@ -25,7 +25,7 @@ const navItemsByRole: Record<string, { name: string; href: string }[]> = {
   ],
   profesional: [
     { name: 'Dashboard', href: '/admin' },
-    { name: 'Clientes', href: '/admin/clients' }
+/*     { name: 'Clientes', href: '/admin/clients' } */
   ]
 }
 
