@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil", // usa la versión estable de Stripe
-});
+  apiVersion: '2024-06-20' as Stripe.LatestApiVersion,
+})
+
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
