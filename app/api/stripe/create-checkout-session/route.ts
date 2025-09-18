@@ -32,8 +32,7 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking`,
     })
 
-    console.log("✅ Session creada:", session.url)
-
+    console.log("✅ Session creada:", session)
     return NextResponse.json({ sessionUrl: session.url })
   } catch (error) {
     console.error("❌ Error en create-checkout-session:", error)
