@@ -38,41 +38,17 @@ const horariosDisponibles = [
 
 // Servicios + duraciones
 const servicios = [
-  'Corte Esencial',
-  'Mini Rizos',
-  'Rizos Masculinos',
-  'Pixie Touch (45 días)',
-  'Retoque Curly (1hr)',
-  'Consulta Curly',
-  'Rizos con Ciencia',
-  'Rizos con Ciencia XL',
-  'Afro con Ciencia',
-  'Rizos Hidratados',
-  'Baño de Vapor',
-  'Curly Makeover',
-  'Revive tu Rizo',
-  'Relax and Restore',
-  'Rizos y café',
-  'Hidratación & Pausa',
-  'Rizos Full Ritual',
-  'Consulta con Hidratación',
-  'Rizos masculinos hidratados',
-  'Rizos masculinos con ciencia',
-  'Mantenimineto Rizos Masculinos',
-  'Corte Escencial XL',
-  'Corte Afrorizo Poderoso',
-  'Afro Glow',
-  'Revive tu Rizo XL',
-  'Baño de vapor XL',
-  'Baño de vapor Afro',
-  'Curly Makeover XL',
-  'Rizos Hidratados XL',
-  'Definición Curly',
-  'Estilízate',
-  'Estilízate XL',
-  'Estilízate Afro',
-  'Rizos de Gala'
+  'Corte Esencial', 'Mini Rizos', 'Rizos Masculinos', 'Pixie Touch (45 días)',
+  'Retoque Curly (1hr)', 'Consulta Curly', 'Rizos con Ciencia', 'Rizos con Ciencia XL',
+  'Afro con Ciencia', 'Rizos Hidratados', 'Baño de Vapor', 'Curly Makeover',
+  'Revive tu Rizo', 'Relax and Restore', 'Rizos y café', 'Hidratación & Pausa',
+  'Rizos Full Ritual', 'Consulta con Hidratación', 'Rizos masculinos hidratados',
+  'Rizos masculinos con ciencia', 'Mantenimineto Rizos Masculinos', 'Corte Escencial XL',
+  'Corte Afrorizo Poderoso', 'Afro Glow', 'Revive tu Rizo XL', 'Baño de vapor XL',
+  'Baño de vapor Afro', 'Curly Makeover XL', 'Rizos Hidratados XL',
+  'Definición Curly', 'Estilízate', 'Estilízate XL', 'Estilízate Afro', 'Rizos de Gala'
 ]
+
 const duracionesPorServicio: Record<string, number> = {
   'Corte Esencial': 120,
   'Mini Rizos': 120,
@@ -132,6 +108,7 @@ export default function BookingPage() {
   const [telefono, setTelefono] = useState('')
   const [sucursal, setSucursal] = useState('')
   const [servicio, setServicio] = useState('')
+  const [notas, setNotas] = useState('')
   const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
 
   const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
@@ -273,6 +250,7 @@ export default function BookingPage() {
 
       {/* --- Formulario --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Tipo de servicio */}
         <div>
           <Label>Tipo de servicio</Label>
           <Select value={tipoServicio} onValueChange={setTipoServicio}>
@@ -284,6 +262,7 @@ export default function BookingPage() {
           </Select>
         </div>
 
+        {/* Profesional */}
         <div>
           <Label>Profesional</Label>
           <Select value={profesional} onValueChange={setProfesional} disabled={!tipoServicio}>
@@ -294,11 +273,13 @@ export default function BookingPage() {
           </Select>
         </div>
 
+        {/* Fecha */}
         <div>
           <Label>Fecha</Label>
           <DatePicker date={fecha} onChange={setFecha} enabledMonths={enabledMonths} />
         </div>
 
+        {/* Hora */}
         <div>
           <Label>Hora</Label>
           <Select value={hora} onValueChange={setHora} disabled={!fecha || !profesional}>
@@ -315,6 +296,7 @@ export default function BookingPage() {
         <div><Label>Correo</Label><Input value={email} onChange={e => setEmail(e.target.value)} /></div>
         <div><Label>Teléfono</Label><Input value={telefono} onChange={e => setTelefono(e.target.value)} /></div>
 
+        {/* Sucursal */}
         <div>
           <Label>Sucursal</Label>
           <Select value={sucursal} onValueChange={setSucursal}>
@@ -327,6 +309,7 @@ export default function BookingPage() {
           </Select>
         </div>
 
+        {/* Servicio */}
         <div>
           <Label>Servicio</Label>
           <Select value={servicio} onValueChange={setServicio}>
@@ -335,6 +318,11 @@ export default function BookingPage() {
               {servicios.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <Label>Notas</Label>
+          <Input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Opcional" />
         </div>
       </div>
 
