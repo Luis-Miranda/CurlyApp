@@ -2,7 +2,9 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-06-20",
+} as any)
 
 
 export async function GET(req: Request) {
@@ -21,7 +23,10 @@ export async function GET(req: Request) {
       customer_email: session.customer_email,
     });
   } catch (error) {
-    console.error("Error en check-session:", error);
-    return NextResponse.json({ error: "Error retrieving session" }, { status: 500 });
-  }
+  console.error("❌ Error en create-checkout-session:", error)
+  return NextResponse.json(
+    { error: error instanceof Error ? error.message : String(error) },
+    { status: 500 }
+  )
+}
 }
