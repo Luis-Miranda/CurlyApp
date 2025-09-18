@@ -205,7 +205,7 @@ const services = [
     fullDescription:
       "Curly makeover + styling class + lunch saludable completo.   Costo de la versión VIP $3300 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/Rizos3.jpg", /* Imágen 2A-3B*/
+    image: "/images/services/rizos3.jpg", /* Imágen 2A-3B*/
     price: "$3000",
     duration: 150
   },
