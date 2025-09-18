@@ -25,7 +25,7 @@ const services = [
     fullDescription:
       "( antes corte infantil) A partir de 3 a 12 años en texturas onduladas y rizadas ( 2a-3c ): Incluye Diagnóstico dermocapilar, receta con ajustes en la rutina de productos ,corte en seco, limpieza profunda, acondicionado sencillo, clase de estilizado y accesorio de regalo. Costo de la versión VIP $840 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen 2A-3C */
+    image: "/images/services/mini-rizos.jpg", /* Imágen 2A-3C */
     price: "$700",
     duration: 120
   },
@@ -37,7 +37,7 @@ const services = [
     fullDescription:
       "(antes corte de caballero) Válido para largo hasta la oreja como máximo, se realiza con tijera. Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, corte en seco,  limpieza profunda, acondicionado sencillo y estilizado guíado por pasos. Costo de la versión VIP $720 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen 2A-3C */
+    image: "/images/services/rizos-masculinos.jpg", /* Imágen 2A-3C */
     price: "$600",
     duration: 90
   },
@@ -49,7 +49,7 @@ const services = [
     fullDescription:
       "(seguimiento pixie) Corte  de seguimiento para cortes arriba de la oreja no mayor a 6 semanas desde el ultimo corte en maravilla curly (longitud de cabello que no supere la oreja), incluye diagnostico dermocapilar, ajustes de rutina, corte, limpieza profunda, estilizado guiado.  Costo de la versión VIP $800 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen 2A-3C */
+    image: "/images/services/pixie-touch.jpg ", /* Imágen 2A-3C */
     price: "$750",
     duration: 120
   },
@@ -61,7 +61,7 @@ const services = [
     fullDescription:
       "antes corte de seguimiento:Aplica únicamente para cabellos atendidos en Maravilla Curly en los últimos 4 meses, No aplica para cabello XL o AFRO. Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. Incluye Ajustes de temporada al diagnóstico anterior, corte en seco, lavado, acondicionado sencillo, estilizado express SIN cepillo y secado. En caso de exceder los 4 meses, o haber cortado en otro lugar previamente su cita será cancelada sin derecho a reembolso. Tolerancia máxima de 5 minutos.  Costo de la versión VIP $800 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen 2A-3C */
+    image: "/images/services/retoque-curly.jpg", /* Imágen 2A-3C */
     price: "$700",
     duration: 60
   },
@@ -73,7 +73,7 @@ const services = [
     fullDescription:
       "(antes asesoría) Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos. Costo de la versión VIP $820 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen 2A-3C */
+    image: "/images/services/consulta-curly.jpg", /* Imágen 2A-3C */
     price: "$690",
     duration: 60
   },
@@ -85,7 +85,7 @@ const services = [
     fullDescription:
       "(antes asesoría con corte) cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos, corte en seco, limpieza profunda,acondicionado Sencillo y estilizado guíado por pasos. Costo de la versión VIP $1800 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen 2A-3C */
+    image: "/images/services/rizos-con-ciencia2.jpg", /* Imágen 2A-3C */
     price: "$1520",
     duration: 120
   },
@@ -97,7 +97,7 @@ const services = [
     fullDescription:
       "(antes asesoria con corte xl) Cabello abundante con un largo de los codos hacia abajo. Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos, corte en seco, limpieza profunda,acondicionado Sencillo y estilizado guíado por pasos.  Costo de la versión VIP $2040 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen XL */
+    image: "/images/services/rizos-con-ciencia.jpg", /* Imágen XL */
     price: "$1770",
     duration: 180
   },
@@ -109,7 +109,7 @@ const services = [
     fullDescription:
       "(antes asesoria con corte ) Cabello textura 3c a 4 Para corroborar textura nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos, corte en seco, limpieza profunda,acondicionado Sencillo y estilizado guíado por pasos.  Costo de la versión VIP $2240 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/3C-4.jpg", /* Imágen Afro*/
+    image: "/images/services/rizos-con-ciencia1.jpg", /* Imágen Afro*/
     price: "$1970",
     duration: 240
   },
@@ -121,7 +121,7 @@ const services = [
     fullDescription:
       "Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, Hidratación Sencilla y estilizado guíado por pasos. Costo de la versión VIP $1200 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen Tratamientos*/
+    image: "/images/services/corte-esencial.jpg", /* Falta*/
     price: "$1000",
     duration: 120
   },
@@ -133,7 +133,7 @@ const services = [
     fullDescription:
       "Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, tratamiento de micro mist con ozono y estilizado guíado por pasos. Costo de la versión VIP $2250 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen Tratamientos*/
+    image: "/images/services/baño-vapor.jpg", /* Imágen Tratamientos*/
     price: "$1900",
     duration: 120
   },
@@ -143,9 +143,9 @@ const services = [
     category: "Paquete",
     description: "El favorito de las Influencers.",
     fullDescription:
-      "(antes paq influencer) El favorito de las influencers: INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso. FORMATO INFORMATIVO cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.  Costo de la versión VIP $3400 mxn.",
+      "(antes paq influencer) El favorito de las influencers: INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso. FORMATO INFORMATIVO cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.  Costo de la versión VIP $3600 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen Influencers*/
+    image: "/images/services/curly-make-over.jpg", /* Imágen Influencers*/
     price: "$3400",
     duration: 120
   },
@@ -157,7 +157,7 @@ const services = [
     fullDescription:
       "(antes recuperación de rizos) cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.Incluye diagnóstico dermo capilar con microscopio, ajustes en la rutina de productos con receta, corte en seco, limpieza profunda, tratamiento de micro mist y estilizado guiado paso a paso.  Costo de la versión VIP $2800 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen largo y densidad regular*/
+    image: "/images/services/revive-tu-rizo.jpg", /* Imágen largo y densidad regular*/
     price: "$2400",
     duration: 120
   },
@@ -169,7 +169,7 @@ const services = [
     fullDescription:
       "Tratamiento de vapor con aroma terapia, lavado en silla masajeadora, masaje de cabeza y manos guiado por técnicas de fisioterapia, estilizado suave con un momento para respirar. Costo de la versión VIP $3000 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen largo y densidad regular*/
+    image: "/images/services/2A-3C.jpg", /* falta*/
     price: "$2500",
     duration: 120
   },
@@ -181,7 +181,7 @@ const services = [
     fullDescription:
       "Corte Para cabello con largo hasta media espalda, texturas onduladas o rizadas únicamente (2A a 3B). Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. Incluye diagnóstico dermocapilar, ajustes de rutina con receta de productos, corte en seco, limpieza profunda, estilizado guiado paso a paso + bebida a elegir + snack artesanal. Costo de la versión VIP $1300 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen 2A-3B*/
+    image: "/images/services/corte-esencial.jpg", /* falta*/
     price: "$1100",
     duration: 120
   },
@@ -193,7 +193,7 @@ const services = [
     fullDescription:
       "Hidratación  sencilla + lavado aromático + estilizado + bebida + galleta. Incluye diagnóstico dermocapilar, ajustes de rutina con receta de productos, limpieza profunda, estilizado guiado paso a paso  Costo de la versión VIP $2100 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen 2A-3B*/
+    image: "/images/services/corte-esencial.jpg", /* falta*/
     price: "$1800",
     duration: 120
   },
@@ -203,10 +203,10 @@ const services = [
     category: "Paquete",
     description: "Curly makeover, stuling class",
     fullDescription:
-      "Curly makeover + styling class + lunch saludable completo.   Costo de la versión VIP $2900 mxn.",
+      "Curly makeover + styling class + lunch saludable completo.   Costo de la versión VIP $3300 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen 2A-3B*/
-    price: "$2600",
+    image: "/images/services/Rizos3.jpg", /* Imágen 2A-3B*/
+    price: "$3000",
     duration: 150
   },
   {
@@ -217,7 +217,7 @@ const services = [
     fullDescription:
       "Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos. limpieza profunda, Hidratación Sencilla y estilizado sencillo.   Costo de la versión VIP $1650 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/corte-esencial.jpg", /* Imágen 2A-3B*/
+    image: "/images/services/corte-esencial.jpg", /* Falta*/
     price: "$1400",
     duration: 60
   },
@@ -229,7 +229,7 @@ const services = [
     fullDescription:
       "(antes corte + hidratación) Válido para largo hasta la oreja como máximo, se realiza con tijera. Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, corte en seco,  limpieza profunda, Hidratación Sencilla y estilizado guíado por pasos.   Costo de la versión VIP desde $1020 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen 2A-3B*/
+    image: "/images/services/Rizos-masculinos-3.jpg", /* Imágen 2A-3B*/
     price: "$850",
     duration: 90
   },
@@ -241,7 +241,7 @@ const services = [
     fullDescription:
       "(antes asesoría con corte) cabellos de largo hasta la oreja maximo..Incluye Diagnostico dermocapilar con microscopio, evaluación y explicación de las caracteristicas principales de la hebra, balance de proteinas, emolientes e hidratantes, tips de identificación de ingredientes en etiquetas, receta con ajustes en la rutina de productos, corte en seco, limpieza profunda,acondicionado Sencillo y estilizado guíado por pasos.   Costo de la versión VIP desde $1440 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen 2A-3B*/
+    image: "/images/services/rizos-masculinos-2.jpg", /* Imágen 2A-3B*/
     price: "$1200",
     duration: 90
   },
@@ -253,7 +253,7 @@ const services = [
     fullDescription:
       "(antes corte de caballero) Válido para largo hasta la oreja como máximo, se realiza con tijera. Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, corte en seco,  limpieza profunda, acondicionado sencillo, ampolleta revitalizante y estilizado guíado por pasos  Costo de la versión VIP desde $960 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen 2A-3B*/
+    image: "/images/services/rizos-masculinos.jpg", /* Imágen 2A-3B*/
     price: "$800",
     duration: 90
   },
@@ -265,7 +265,7 @@ const services = [
     fullDescription:
       "(antes corte de rizos/ondas xl) Cabello abundante con un largo de los codos hacia abajo.: Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio.Incluye diagnóstico dermocapilar, ajustes de rutina con receta, corte en seco, limpieza profunda y estilizado guiado paso a paso.  Costo de la versión VIP desde $1500 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen XL*/
+    image: "/images/services/Xl.jpg", /* Imágen XL*/
     price: "$1260",
     duration: 180
   },
@@ -275,10 +275,10 @@ const services = [
     category: "Cabello Afro",
     description: "Texturas Afrodescendientes 3C a 4.",
     fullDescription:
-      "Texturas Afrodescendientes (3c a patrones 4)  Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, corte en seco limpieza profunda, estilizado (definición + secado) guiado por pasos el precio puede aumentar dependiendo de la densidad, largo y porosidad  Costo de la versión VIP desde $1824 mxn.",
+      "Texturas Afrodescendientes (3c a patrones 4)  Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, corte en seco limpieza profunda, estilizado (definición + secado) guiado por pasos el precio puede aumentar dependiendo de la densidad, largo y porosidad  Costo de la versión VIP desde $2000 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/3C-4.jpg", /* Imágen Afro*/
-    price: "$1824",
+    image: "/images/services/afrorizo-poderoso.jpg", /* Imágen Afro*/
+    price: "$1800",
     duration: 240
   },
   {
@@ -289,7 +289,7 @@ const services = [
     fullDescription:
       "PATRONES 3C-4 (antes paq influencer afro) INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso. FORMATO INFORMATIVO cabellos de largo y densidad regular, Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. el precio puede aumentar dependiendo de la densidad y largo Costo de la versión VIP desde $3900 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/3C-4.jpg", /* Imágen Afro*/
+    image: "/images/services/afro-glow.jpg", /* Imágen Afro*/
     price: "$3280",
     duration: 240
   },
@@ -301,7 +301,7 @@ const services = [
     fullDescription:
       "(antes recuperación de rizos XL) Cabello abundante con un largo de los codos hacia abajo.Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agendar tu servicio. Incluye diagnóstico dermocapilar con microscopio, corte en seco, limpieza profunda, tratamiento de vapor ozono y estilizado guiado paso a paso. Costo de la versión VIP desde $3100 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen XL*/
+    image: "/images/services/revive-tu-rizo-xl.jpg", /* Imágen XL*/
     price: "$2750",
     duration: 180
   },
@@ -313,7 +313,7 @@ const services = [
     fullDescription:
       "Cabello abundante con un largo de los codos hacia abajo.  Para corroborar las medidas de tu cabello nos puedes mandar mensaje a WhatsApp antes de agenda tu servicio. Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, tratamiento de vapor con ozono y estilizado guíado por pasos. Costo de la versión VIP desde $2550 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen XL*/
+    image: "/images/services/baño-vapor.jpg", /* Imágen XL*/
     price: "$2150",
     duration: 180
   },
@@ -325,7 +325,7 @@ const services = [
     fullDescription:
       "Cabello 3c-4a afrodescendiente, Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, tratamiento de vapor con ozono y  definición con secado incluido, guiado paso a paso. para dudas en la textura favor de comunicarse a WhatsApp.  Costo de la versión VIP desde $2700 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/3C-4.jpg", /* Imágen Afro*/
+    image: "/images/services/baño-vapor2.jpg", /* Imágen Afro*/
     price: "$2300",
     duration: 240
   },
@@ -337,7 +337,7 @@ const services = [
     fullDescription:
       "(antes paq influencer xl) El favorito de las influencers: INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso. FORMATO INFORMATIVO.   Costo de la versión VIP desde $4000 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen XL*/
+    image: "/images/services/Rizos3.jpg", /* Imágen XL*/
     price: "$3550",
     duration: 180
   },
@@ -361,7 +361,7 @@ const services = [
     fullDescription:
       "(estilizado) Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, estilizado (definición + secado) PRECIO DESDE $600 PUEDE AUMENTAR DEPENDIENDO DE LA DENSIDAD Y LARGO DEL CABELLO. +$100 densidad media +$300 densidad alta  +$350 XL.  Costo de la versión VIP desde $820 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen Estilizado*/
+    image: "/images/services/definición-curly.jpg", /* Imágen Estilizado*/
     price: "Desde $820",
     duration: 60
   },
@@ -373,7 +373,7 @@ const services = [
     fullDescription:
       "Incluye ajustes básicos de rutina sin receta, limpieza profunda, clase de estilizado personalizada, puedes traer tus propias herramientas. Costo de la versión VIP desde $720 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen Estilizado*/
+    image: "/images/services/estilízate-xl.jpg", /* Imágen Estilizado*/
     price: "Desde $600",
     duration: 60
   },
@@ -385,7 +385,7 @@ const services = [
     fullDescription:
       "Incluye ajustes básicos de rutina sin receta, limpieza profunda, clase de estilizado personalizada, puedes traer tus propias herramientas. Costo de la versión VIP desde $880 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen XL*/
+    image: "/images/services/estilízate-xl.jpg", /* Imágen XL*/
     price: "$750",
     duration: 120
   },
@@ -397,7 +397,7 @@ const services = [
     fullDescription:
       "Incluye ajustes básicos de rutina sin receta, limpieza profunda, clase de estilizado personalizada, puedes traer tus propias herramientas. Costo de la versión VIP desde $1100 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/3C-4.jpg", /* Imágen Afro*/
+    image: "/images/services/estilízate-xl.jpg", /* Imágen Afro*/
     price: "$900",
     duration: 90
   },
@@ -409,7 +409,7 @@ const services = [
     fullDescription:
       "Peinados pensados para brillar. Desde semi recogidos románticos hasta estilos con trenzas o volumen, este servicio está diseñado para acompañarte en eventos, bodas, sesiones de fotos o días especiales. El precio varía según la complejidad del peinado, longitud y densidad del cabello, se requiere foto previa de referencia. Costo de la versión VIP desde $850 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/2A-3C.jpg", /* Imágen Afro*/
+    image: "/images/services/rizos-de-gala2.jpg", /* Imágen Afro*/
     price: "desde $850",
     duration: 60
   },
@@ -421,7 +421,7 @@ const services = [
     fullDescription:
       "Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, estilizado (definición + secado) guiado por pasos el precio puede aumentar dependiendo de la densidad y largo. Costo de la versión VIP desde $900 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/placeholder.svg?height=300&width=400", /* Imágen Afro*/
+    image: "/images/services/retoque-curly.jpg", /* Imágen Afro*/
     price: "desde $750",
     duration: 120
   },
