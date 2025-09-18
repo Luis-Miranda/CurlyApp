@@ -98,7 +98,7 @@ export default function ThankYouPage() {
           servicio: data.servicio,
           duracion,
           notas: data.notas || 'Sin notas',
-          status: 'por confirmar', // se queda pendiente hasta que admin confirme
+          status: 'por confirmar', 
           createdAt: Timestamp.now(),
         })
 
