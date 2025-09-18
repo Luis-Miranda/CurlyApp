@@ -1,5 +1,3 @@
-// booking/page.tsx (actualizado)
-
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -12,8 +10,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { format } from 'date-fns'
-import { toast } from 'sonner'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 // UI
 import { Button } from '@/components/ui/button'
@@ -29,15 +26,17 @@ import {
   AlertDialogHeader, AlertDialogTitle, AlertDialogCancel
 } from '@/components/ui/alert-dialog'
 
-// Datos y constantes
-const profesionalesVIP = ['Keyla'/* , 'Maravilla Curly' */]
+// Profesionales
+const profesionalesVIP = ['Keyla']
 const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
 
+// Horarios
 const horariosDisponibles = [
   '10:00', '11:00', '12:00', '13:00',
   '15:00', '16:00', '17:00', '18:00'
 ]
 
+// Servicios + duraciones
 const servicios = [
   'Corte Esencial',
   'Mini Rizos',
@@ -74,7 +73,6 @@ const servicios = [
   'Estilízate Afro',
   'Rizos de Gala'
 ]
-
 const duracionesPorServicio: Record<string, number> = {
   'Corte Esencial': 120,
   'Mini Rizos': 120,
@@ -114,45 +112,44 @@ const duracionesPorServicio: Record<string, number> = {
 
 const obtenerBloques = (duracionMin: number): number => Math.ceil(duracionMin / 60)
 
-const esHorarioDisponible = (hora: string, ocupados: string[], bloques: number): boolean => {
-  const startIndex = horariosDisponibles.indexOf(hora)
-  if (startIndex === -1) return false
-  for (let i = 0; i < bloques; i++) {
-    const bloque = horariosDisponibles[startIndex + i]
-    if (!bloque || ocupados.includes(bloque)) return false
-  }
-  return true
+// Validaciones de horario
+const dentroDeHorarioComida = (inicio: Date, fin: Date) => {
+  const comidaInicio = new Date(inicio); comidaInicio.setHours(14, 0, 0, 0)
+  const comidaFin = new Date(inicio); comidaFin.setHours(15, 0, 0, 0)
+  return inicio < comidaFin && fin > comidaInicio
 }
+const cruzaDespuesDeSiete = (fin: Date) => fin.getHours() >= 19
 
 export default function BookingPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   const [tipoServicio, setTipoServicio] = useState('')
   const [profesional, setProfesional] = useState('')
-  const [fecha, setFecha] = useState<Date | undefined>(undefined)
+  const [fecha, setFecha] = useState<Date | undefined>()
   const [hora, setHora] = useState('')
   const [nombre, setNombre] = useState('')
   const [email, setEmail] = useState('')
   const [telefono, setTelefono] = useState('')
   const [sucursal, setSucursal] = useState('')
   const [servicio, setServicio] = useState('')
-  const [notas, setNotas] = useState('')
   const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
-  const [showPoliticasModal, setShowPoliticasModal] = useState(false)
-
-  const profesionales = tipoServicio === 'VIP' ? profesionalesVIP : tipoServicio === 'Clásico' ? profesionalesClasico : []
 
   const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
   const [enabledMonths, setEnabledMonths] = useState<string[]>([])
-  const [blockedDaysProfesional, setBlockedDaysProfesional] = useState<Record<string, number[]>>({})
-  const [blockedDatesProfesional, setBlockedDatesProfesional] = useState<Record<string, string[]>>({})
 
+  // Modal de errores
+  const [modalError, setModalError] = useState<{ open: boolean, mensaje: string }>({ open: false, mensaje: '' })
+  const [modalPoliticas, setModalPoliticas] = useState(false)
+
+  const profesionales = tipoServicio === 'VIP' ? profesionalesVIP : tipoServicio === 'Clásico' ? profesionalesClasico : []
+
+  // Prellenar servicio desde URL
   useEffect(() => {
     const servicioDesdeURL = searchParams.get('servicio')
     if (servicioDesdeURL && servicio === '') setServicio(servicioDesdeURL)
   }, [searchParams, servicio])
 
+  // Cargar meses habilitados
   useEffect(() => {
     const fetchEnabledMonths = async () => {
       const snapshot = await getDocs(collection(db, 'enabledBookingMonths'))
@@ -162,22 +159,7 @@ export default function BookingPage() {
     fetchEnabledMonths()
   }, [])
 
-  useEffect(() => {
-    const fetchBlocked = async () => {
-      const snapshot = await getDocs(collection(db, 'blockedDaysByProfessional'))
-      const daysData: Record<string, number[]> = {}
-      const datesData: Record<string, string[]> = {}
-      snapshot.forEach(doc => {
-        const data = doc.data()
-        daysData[doc.id] = data.blockedWeekDays || []
-        datesData[doc.id] = data.blockedDates || []
-      })
-      setBlockedDaysProfesional(daysData)
-      setBlockedDatesProfesional(datesData)
-    }
-    fetchBlocked()
-  }, [])
-
+  // Cargar horarios ocupados
   useEffect(() => {
     const obtenerHorariosOcupados = async () => {
       if (fecha && profesional && servicio) {
@@ -187,13 +169,12 @@ export default function BookingPage() {
           where('profesional', '==', profesional)
         )
         const snapshot = await getDocs(q)
-
         const ocupados: string[] = []
         snapshot.docs.forEach(doc => {
           const horaInicio = doc.data().hora
-          const bloquesCita = obtenerBloques(duracionesPorServicio[doc.data().servicio] || 60)
+          const duracion = duracionesPorServicio[doc.data().servicio] || 60
           const indexInicio = horariosDisponibles.indexOf(horaInicio)
-          for (let i = 0; i < bloquesCita; i++) {
+          for (let i = 0; i < obtenerBloques(duracion); i++) {
             const bloque = horariosDisponibles[indexInicio + i]
             if (bloque) ocupados.push(bloque)
           }
@@ -206,38 +187,52 @@ export default function BookingPage() {
     obtenerHorariosOcupados()
   }, [fecha, profesional, servicio])
 
-  const isDateBlocked = (date: Date): boolean => {
-    if (!profesional) return false
-    const blockedDays = blockedDaysProfesional[profesional] || []
-    const blockedDates = blockedDatesProfesional[profesional] || []
-    const formatted = format(date, 'yyyy-MM-dd')
-    return blockedDays.includes(date.getDay()) || blockedDates.includes(formatted)
+  const esHorarioDisponible = (hora: string): boolean => {
+    if (!fecha || !servicio) return false
+
+    const duracion = duracionesPorServicio[servicio] || 60
+    const [h, m] = hora.split(':').map(Number)
+    const inicio = new Date(fecha); inicio.setHours(h, m, 0, 0)
+    const fin = new Date(inicio.getTime() + duracion * 60000)
+
+    if (dentroDeHorarioComida(inicio, fin)) return false
+    if (cruzaDespuesDeSiete(fin)) return false
+
+    return !horariosOcupados.includes(hora)
   }
 
   const handleSubmit = async () => {
     if (!aceptoPoliticas) {
-      setShowPoliticasModal(true)
+      setModalPoliticas(true)
       return
     }
 
     if (!tipoServicio || !profesional || !fecha || !hora || !nombre || !email || !telefono || !sucursal || !servicio) {
-      toast.error('Completa todos los campos obligatorios')
-      return
-    }
-
-    if (fecha.getDay() === 0) {
-      toast.error('No se puede reservar en domingo')
-      return
-    }
-
-    if (isDateBlocked(fecha)) {
-      toast.error(`La profesional seleccionada no labora el día elegido.`)
+      setModalError({ open: true, mensaje: '⚠️ Faltan datos obligatorios para reservar.' })
       return
     }
 
     const duracion = duracionesPorServicio[servicio] || 60
-    const formattedDate = format(fecha, 'yyyy-MM-dd')
+    const [h, m] = hora.split(':').map(Number)
+    const inicio = new Date(fecha); inicio.setHours(h, m, 0, 0)
+    const fin = new Date(inicio.getTime() + duracion * 60000)
 
+    if (dentroDeHorarioComida(inicio, fin)) {
+      setModalError({ open: true, mensaje: '🍽️ No se pueden reservar citas entre 2:00 pm y 3:00 pm (horario de comida).' })
+      return
+    }
+
+    if (cruzaDespuesDeSiete(fin)) {
+      setModalError({ open: true, mensaje: '⏰ No se permiten citas que terminen después de las 7:00 pm.' })
+      return
+    }
+
+    if (horariosOcupados.includes(hora)) {
+      setModalError({ open: true, mensaje: '❌ Ese horario ya está ocupado, elige otro.' })
+      return
+    }
+
+    const formattedDate = format(fecha, 'yyyy-MM-dd')
     const appointmentData = {
       tipoServicio,
       profesional,
@@ -248,31 +243,27 @@ export default function BookingPage() {
       telefono,
       sucursal,
       servicio,
-      duracion, // ✅ duración incluida
-      notas: notas || 'Sin notas',
-      aceptoPoliticas: true,
+      duracion,
       status: 'pendiente',
       createdAt: Timestamp.now()
     }
 
     try {
       localStorage.setItem('pendingAppointment', JSON.stringify(appointmentData))
-
       const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: nombre, email, date: formattedDate, time: hora })
       })
-
       const data = await res.json()
       if (data?.sessionUrl) {
         window.location.href = data.sessionUrl
       } else {
-        toast.error('No se pudo redirigir a Stripe')
+        setModalError({ open: true, mensaje: 'Error al redirigir a Stripe' })
       }
     } catch (err) {
       console.error(err)
-      toast.error('Hubo un error al iniciar el pago')
+      setModalError({ open: true, mensaje: 'Hubo un error al iniciar el pago' })
     }
   }
 
@@ -280,14 +271,12 @@ export default function BookingPage() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Reserva tu cita</h2>
 
-      {/* Formulario */}
+      {/* --- Formulario --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Label>Tipo de servicio</Label>
           <Select value={tipoServicio} onValueChange={setTipoServicio}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona tipo de servicio" />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Selecciona tipo" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="VIP">VIP</SelectItem>
               <SelectItem value="Clásico">Clásico</SelectItem>
@@ -298,60 +287,40 @@ export default function BookingPage() {
         <div>
           <Label>Profesional</Label>
           <Select value={profesional} onValueChange={setProfesional} disabled={!tipoServicio}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona una profesional" />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Profesional" /></SelectTrigger>
             <SelectContent>
-              {profesionales.map(p => (
-                <SelectItem key={p} value={p}>{p}</SelectItem>
-              ))}
+              {profesionales.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
 
         <div>
           <Label>Fecha</Label>
-          <DatePicker
-            date={fecha}
-            onChange={setFecha}
-            enabledMonths={enabledMonths}
-          />
+          <DatePicker date={fecha} onChange={setFecha} enabledMonths={enabledMonths} />
         </div>
 
         <div>
           <Label>Hora</Label>
-          <Select
-            value={hora}
-            onValueChange={setHora}
-            disabled={
-              !fecha || !profesional || isDateBlocked(fecha)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona una hora" />
-            </SelectTrigger>
+          <Select value={hora} onValueChange={setHora} disabled={!fecha || !profesional}>
+            <SelectTrigger><SelectValue placeholder="Hora" /></SelectTrigger>
             <SelectContent>
-              {horariosDisponibles
-                .filter(h => esHorarioDisponible(h, horariosOcupados, obtenerBloques(duracionesPorServicio[servicio] || 60)))
-                .map(h => (
-                  <SelectItem key={h} value={h}>{h}</SelectItem>
-                ))}
+              {horariosDisponibles.filter(h => esHorarioDisponible(h)).map(h => (
+                <SelectItem key={h} value={h}>{h}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div><Label>Nombre</Label><Input value={nombre} onChange={e => setNombre(e.target.value)} /></div>
-        <div><Label>Correo electrónico</Label><Input value={email} onChange={e => setEmail(e.target.value)} /></div>
+        <div><Label>Correo</Label><Input value={email} onChange={e => setEmail(e.target.value)} /></div>
         <div><Label>Teléfono</Label><Input value={telefono} onChange={e => setTelefono(e.target.value)} /></div>
 
         <div>
           <Label>Sucursal</Label>
           <Select value={sucursal} onValueChange={setSucursal}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona la sucursal" />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Selecciona sucursal" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="Av. Miguel Ángel de Quevedo 520a">
+              <SelectItem value="Av. Miguel Ángel de Quevedo 520a,Santa Catarina Coyoacan, CDMX, México">
                 Av. Miguel Ángel de Quevedo 520a
               </SelectItem>
             </SelectContent>
@@ -361,20 +330,11 @@ export default function BookingPage() {
         <div>
           <Label>Servicio</Label>
           <Select value={servicio} onValueChange={setServicio}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecciona un servicio" />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Servicio" /></SelectTrigger>
             <SelectContent>
-              {servicios.map(s => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
+              {servicios.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
-        </div>
-
-        <div>
-          <Label>Notas</Label>
-          <Input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Opcional" />
         </div>
       </div>
 
@@ -404,9 +364,7 @@ export default function BookingPage() {
                 <p>👩‍🔬 <strong>Profesionales:</strong> Puede haber cambios según disponibilidad.</p>
               </div>
               <div className="flex justify-end pt-4">
-                <AlertDialogCancel asChild>
-                  <Button variant="outline">Cerrar</Button>
-                </AlertDialogCancel>
+                <AlertDialogCancel asChild><Button variant="outline">Cerrar</Button></AlertDialogCancel>
               </div>
             </AlertDialogContent>
           </AlertDialog>
@@ -417,7 +375,20 @@ export default function BookingPage() {
         <Button onClick={handleSubmit}>Pagar anticipo y agendar</Button>
       </div>
 
-      <AlertDialog open={showPoliticasModal} onOpenChange={setShowPoliticasModal}>
+      {/* Modal de error */}
+      <AlertDialog open={modalError.open} onOpenChange={(open) => setModalError({ ...modalError, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{modalError.mensaje}</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="flex justify-end pt-4">
+            <AlertDialogCancel asChild><Button variant="outline">Cerrar</Button></AlertDialogCancel>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Modal si no aceptó políticas */}
+      <AlertDialog open={modalPoliticas} onOpenChange={setModalPoliticas}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>❗ Acepta las políticas de reserva</AlertDialogTitle>
@@ -426,7 +397,7 @@ export default function BookingPage() {
             Para continuar con la cita, es necesario aceptar las políticas de reserva.
           </p>
           <div className="flex justify-end pt-4">
-            <Button onClick={() => setShowPoliticasModal(false)}>Entendido</Button>
+            <Button onClick={() => setModalPoliticas(false)}>Entendido</Button>
           </div>
         </AlertDialogContent>
       </AlertDialog>
