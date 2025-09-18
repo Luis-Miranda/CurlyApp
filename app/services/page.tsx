@@ -337,7 +337,7 @@ const services = [
     fullDescription:
       "(antes paq influencer xl) El favorito de las influencers: INCLUYE ASESORIA: Diagnostico dermocapilar con microscopio y estudio de la hebra con explicaciones sobre características y necesidades, así como ingredientes recomendados y a evitar en la lectura de etiquetas de productos. armado de rutina para mantenimiento en casa. CORTE: Corte en seco según tus gustos y tipo de rizo u onda, limpieza profunda en cuero cabelludo y hebra para retirar saturación. TRATAMIENTO DE VAPOR: Aplicación de productos libres de ingredientes insolubles en agua, de acuerdo a las necesidades especificas, Estilizado guiado paso a paso. FORMATO INFORMATIVO.   Costo de la versión VIP desde $4000 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/Rizos3.jpg", /* Imágen XL*/
+    image: "/images/services/rizos3.jpg", /* Imágen XL*/
     price: "$3550",
     duration: 180
   },
@@ -361,7 +361,7 @@ const services = [
     fullDescription:
       "(estilizado) Incluye Diagnostico dermocapilar, receta con ajustes en la rutina de productos, limpieza profunda, estilizado (definición + secado) PRECIO DESDE $600 PUEDE AUMENTAR DEPENDIENDO DE LA DENSIDAD Y LARGO DEL CABELLO. +$100 densidad media +$300 densidad alta  +$350 XL.  Costo de la versión VIP desde $820 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/definición-curly.jpg", /* Imágen Estilizado*/
+    image: "/images/services/definicion-curly.jpg", /* Imágen Estilizado*/
     price: "Desde $820",
     duration: 60
   },
@@ -373,7 +373,7 @@ const services = [
     fullDescription:
       "Incluye ajustes básicos de rutina sin receta, limpieza profunda, clase de estilizado personalizada, puedes traer tus propias herramientas. Costo de la versión VIP desde $720 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/estilízate-xl.jpg", /* Imágen Estilizado*/
+    image: "/images/services/estilizate-xl.jpg", /* Imágen Estilizado*/
     price: "Desde $600",
     duration: 60
   },
@@ -385,7 +385,7 @@ const services = [
     fullDescription:
       "Incluye ajustes básicos de rutina sin receta, limpieza profunda, clase de estilizado personalizada, puedes traer tus propias herramientas. Costo de la versión VIP desde $880 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/estilízate-xl.jpg", /* Imágen XL*/
+    image: "/images/services/estilizate-xl.jpg", /* Imágen XL*/
     price: "$750",
     duration: 120
   },
@@ -397,7 +397,7 @@ const services = [
     fullDescription:
       "Incluye ajustes básicos de rutina sin receta, limpieza profunda, clase de estilizado personalizada, puedes traer tus propias herramientas. Costo de la versión VIP desde $1100 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
-    image: "/images/services/estilízate-xl.jpg", /* Imágen Afro*/
+    image: "/images/services/estilizate-xl.jpg", /* Imágen Afro*/
     price: "$900",
     duration: 90
   },
