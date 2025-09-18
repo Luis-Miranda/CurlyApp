@@ -62,6 +62,9 @@ export default function ThankYouPage() {
       try {
         // 1. Consultar la sesión de Stripe
         const res = await fetch(`/api/stripe/check-session?session_id=${sessionId}`)
+        if (!res.ok) {
+          throw new Error("No se pudo validar la sesión de Stripe")
+        }
         const stripeData = await res.json()
 
         if (!res.ok || stripeData.payment_status !== 'paid') {
