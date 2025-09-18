@@ -72,8 +72,7 @@ const servicios = [
   'Estilízate',
   'Estilízate XL',
   'Estilízate Afro',
-  'Rizos de Gala',
-  'Retoque de tinte'
+  'Rizos de Gala'
 ]
 
 const duracionesPorServicio: Record<string, number> = {
@@ -110,8 +109,7 @@ const duracionesPorServicio: Record<string, number> = {
   'Estilízate': 60,
   'Estilízate XL': 120,
   'Estilízate Afro': 90,
-  'Rizos de Gala': 60,
-  'Retoque de tinte': 120
+  'Rizos de Gala': 60
 }
 
 const obtenerBloques = (duracionMin: number): number => Math.ceil(duracionMin / 60)
