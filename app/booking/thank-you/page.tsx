@@ -95,21 +95,23 @@ console.log("🔥 Intentando guardar cita en Firestore:", {
 })
 
 try {
-  await addDoc(collection(db, 'citas'), {
-    tipoServicio: data.tipoServicio,
-    profesional: data.profesional,
-    fecha: data.fecha,
-    hora: data.hora,
-    nombre: data.nombre,
-    email: data.email,
-    telefono: data.telefono,
-    sucursal: data.sucursal,
-    servicio: data.servicio,
-    duracion,
-    notas: data.notas || 'Sin notas',
-    status: 'por confirmar',
-    createdAt: Timestamp.now(),
-  })
+  const docRef = await addDoc(collection(db, 'citas'), {
+  tipoServicio: data.tipoServicio,
+  profesional: data.profesional,
+  fecha: data.fecha,
+  hora: data.hora,
+  nombre: data.nombre,
+  email: data.email,
+  telefono: data.telefono,
+  sucursal: data.sucursal,
+  servicio: data.servicio,
+  duracion,
+  notas: data.notas || 'Sin notas',
+  status: 'por confirmar', 
+  createdAt: Timestamp.now(),
+})
+
+console.log("📄 Documento creado en 'citas' con ID:", docRef.id)
   console.log("✅ Cita guardada correctamente en Firestore")
 } catch (err) {
   console.error("❌ Error al guardar en Firestore:", err)
