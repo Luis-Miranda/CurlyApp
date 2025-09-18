@@ -84,23 +84,36 @@ export default function ThankYouPage() {
         const data = JSON.parse(saved)
 
         // 3. Guardar en Firestore
-        const duracion = duracionesPorServicio[data.servicio] || 60
+const duracion = duracionesPorServicio[data.servicio] || 60
 
-        await addDoc(collection(db, 'citas'), {
-          tipoServicio: data.tipoServicio,
-          profesional: data.profesional,
-          fecha: data.fecha,
-          hora: data.hora,
-          nombre: data.nombre,
-          email: data.email,
-          telefono: data.telefono,
-          sucursal: data.sucursal,
-          servicio: data.servicio,
-          duracion,
-          notas: data.notas || 'Sin notas',
-          status: 'por confirmar', 
-          createdAt: Timestamp.now(),
-        })
+console.log("🔥 Intentando guardar cita en Firestore:", {
+  ...data,
+  duracion,
+  notas: data.notas || 'Sin notas',
+  status: 'por confirmar',
+  createdAt: new Date().toISOString(),
+})
+
+try {
+  await addDoc(collection(db, 'citas'), {
+    tipoServicio: data.tipoServicio,
+    profesional: data.profesional,
+    fecha: data.fecha,
+    hora: data.hora,
+    nombre: data.nombre,
+    email: data.email,
+    telefono: data.telefono,
+    sucursal: data.sucursal,
+    servicio: data.servicio,
+    duracion,
+    notas: data.notas || 'Sin notas',
+    status: 'por confirmar',
+    createdAt: Timestamp.now(),
+  })
+  console.log("✅ Cita guardada correctamente en Firestore")
+} catch (err) {
+  console.error("❌ Error al guardar en Firestore:", err)
+}
 
         // 4. Enviar correo de confirmación
         await fetch('/api/send-confirmation-email', {
