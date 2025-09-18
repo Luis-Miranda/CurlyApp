@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/alert-dialog'
 
 // Datos y constantes
-const profesionalesVIP = ['Keyla', 'Maravilla Curly']
+const profesionalesVIP = ['Keyla'/* , 'Maravilla Curly' */]
 const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
 
 const horariosDisponibles = [
