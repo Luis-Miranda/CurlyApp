@@ -96,18 +96,18 @@ console.log("🔥 Intentando guardar cita en Firestore:", {
 
 try {
   const docRef = await addDoc(collection(db, 'citas'), {
-  tipoServicio: data.tipoServicio,
-  profesional: data.profesional,
-  fecha: data.fecha,
-  hora: data.hora,
-  nombre: data.nombre,
+  type: data.tipoServicio,
+  professional: data.profesional,
+  date: data.fecha,
+  time: data.hora,
+  name: data.nombre,
   email: data.email,
-  telefono: data.telefono,
-  sucursal: data.sucursal,
-  servicio: data.servicio,
-  duracion,
-  notas: data.notas || 'Sin notas',
-  status: 'por confirmar', 
+  phone: data.telefono,
+  branch: data.sucursal,
+  service: [data.servicio],   // 👈 array como antes
+  duration: duracion,         // 👈 incluir duración
+  notes: data.notas || 'Sin notas',
+  status: 'por confirmar',    // 👈 o 'confirmada' según lo que necesites
   createdAt: Timestamp.now(),
 })
 
