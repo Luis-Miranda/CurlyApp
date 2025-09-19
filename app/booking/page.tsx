@@ -29,7 +29,7 @@ import {
 
 // Profesionales
 const profesionalesVIP = ['Keyla']
-const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
+const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', /* 'Karen', 'Vane', */ 'Karla', 'Mony']
 
 // Horarios base
 const horariosDisponibles = [
