@@ -254,50 +254,49 @@ export default function BookingPage() {
       status: 'por confirmar',
       createdAt: Timestamp.now()
     }
+// dentro de handleSubmit en booking/page.tsx
+try {
+  // 1️⃣ Guardar cita en Firestore
+  const docRef = await addDoc(collection(db, 'citas'), {
+    type: tipoServicio,
+    professional: profesional,
+    date: formattedDate,
+    time: hora,
+    name: nombre,
+    email,
+    phone: telefono,
+    branch: sucursal,
+    service: [servicio],
+    notes: notas || 'Sin notas',
+    duration: duracion,
+    status: 'por confirmar',
+    createdAt: Timestamp.now()
+  })
+  console.log("📄 Cita creada en Firestore con ID:", docRef.id)
 
-    // Dentro de handleSubmit (después de addDoc)
-    try {
-      // 1️⃣ Guardar en Firestore
-      const docRef = await addDoc(collection(db, 'citas'), appointmentData)
-      console.log('📄 Cita creada con ID:', docRef.id)
+  // 2️⃣ Crear sesión en Stripe
+  const res = await fetch('/api/stripe/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: nombre,
+      email,
+      date: formattedDate,
+      time: hora,
+      appointmentId: docRef.id
+    })
+  })
 
-      // 2️⃣ Enviar correo con Resend
-      await fetch('/api/send-confirmation-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          name: nombre,
-          date: formattedDate,
-          time: hora,
-          professional: profesional,
-          branch: sucursal,
-          service: [servicio],
-        }),
-      })
-
-      // 3️⃣ Redirigir a Stripe
-      const res = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: nombre,
-          email,
-          date: formattedDate,
-          time: hora,
-          appointmentId: docRef.id
-        })
-      })
-      const data = await res.json()
-      if (data?.sessionUrl) {
-        window.location.href = data.sessionUrl
-      } else {
-        setModalError({ open: true, mensaje: '⚠️ Error al redirigir a Stripe.' })
-      }
-    } catch (err) {
-      console.error(err)
-      setModalError({ open: true, mensaje: '❌ Hubo un error al iniciar el pago.' })
-    }
+  const data = await res.json()
+  if (data?.sessionUrl) {
+    window.location.href = data.sessionUrl
+  } else {
+    setModalError({ open: true, mensaje: '⚠️ Error al redirigir a Stripe.' })
+  }
+} catch (err) {
+  console.error("❌ Error en handleSubmit:", err)
+  setModalError({ open: true, mensaje: '❌ Hubo un error al iniciar el pago.' })
+}
   }
 
   return (
