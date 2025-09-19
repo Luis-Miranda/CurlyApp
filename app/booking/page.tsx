@@ -37,18 +37,6 @@ const horariosDisponibles = [
 ]
 
 // Servicios + duraciones
-const servicios = [
-  'Corte Esencial', 'Mini Rizos', 'Rizos Masculinos', 'Pixie Touch (45 días)',
-  'Retoque Curly (1hr)', 'Consulta Curly', 'Rizos con Ciencia', 'Rizos con Ciencia XL',
-  'Afro con Ciencia', 'Rizos Hidratados', 'Baño de Vapor', 'Curly Makeover',
-  'Revive tu Rizo', 'Relax and Restore', 'Rizos y café', 'Hidratación & Pausa',
-  'Rizos Full Ritual', 'Consulta con Hidratación', 'Rizos masculinos hidratados',
-  'Rizos masculinos con ciencia', 'Mantenimineto Rizos Masculinos', 'Corte Escencial XL',
-  'Corte Afrorizo Poderoso', 'Afro Glow', 'Revive tu Rizo XL', 'Baño de vapor XL',
-  'Baño de vapor Afro', 'Curly Makeover XL', 'Rizos Hidratados XL',
-  'Definición Curly', 'Estilízate', 'Estilízate XL', 'Estilízate Afro', 'Rizos de Gala'
-]
-
 const duracionesPorServicio: Record<string, number> = {
   'Corte Esencial': 120,
   'Mini Rizos': 120,
@@ -142,14 +130,17 @@ export default function BookingPage() {
       if (fecha && profesional && servicio) {
         const q = query(
           collection(db, 'citas'),
-          where('fecha', '==', format(fecha, 'yyyy-MM-dd')),
-          where('profesional', '==', profesional)
+          where('date', '==', format(fecha, 'yyyy-MM-dd')),      // 👈 usamos "date"
+          where('professional', '==', profesional)               // 👈 usamos "professional"
         )
         const snapshot = await getDocs(q)
         const ocupados: string[] = []
         snapshot.docs.forEach(doc => {
-          const horaInicio = doc.data().hora
-          const duracion = duracionesPorServicio[doc.data().servicio] || 60
+          const horaInicio = doc.data().time                      // 👈 usamos "time"
+          const servicioGuardado = Array.isArray(doc.data().service)
+            ? doc.data().service[0]                              // 👈 si es array, tomamos el primero
+            : doc.data().service
+          const duracion = duracionesPorServicio[servicioGuardado] || 60
           const indexInicio = horariosDisponibles.indexOf(horaInicio)
           for (let i = 0; i < obtenerBloques(duracion); i++) {
             const bloque = horariosDisponibles[indexInicio + i]
@@ -211,16 +202,17 @@ export default function BookingPage() {
 
     const formattedDate = format(fecha, 'yyyy-MM-dd')
     const appointmentData = {
-      tipoServicio,
-      profesional,
-      fecha: formattedDate,
-      hora,
-      nombre,
+      type: tipoServicio,
+      professional: profesional,
+      date: formattedDate,
+      time: hora,
+      name: nombre,
       email,
-      telefono,
-      sucursal,
-      servicio,
-      duracion,
+      phone: telefono,
+      branch: sucursal,
+      service: [servicio],       // 👈 lo guardamos como array
+      duration: duracion,
+      notes: notas || 'Sin notas',
       status: 'pendiente',
       createdAt: Timestamp.now()
     }
@@ -248,7 +240,7 @@ export default function BookingPage() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Reserva tu cita</h2>
 
-      {/* --- Formulario --- */}
+      {/* Formulario */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tipo de servicio */}
         <div>
@@ -315,7 +307,7 @@ export default function BookingPage() {
           <Select value={servicio} onValueChange={setServicio}>
             <SelectTrigger><SelectValue placeholder="Servicio" /></SelectTrigger>
             <SelectContent>
-              {servicios.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              {Object.keys(duracionesPorServicio).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
