@@ -1,139 +1,56 @@
-// app/booking/thank-you/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { addDoc, collection, Timestamp } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { toast } from 'sonner'
-
-const duracionesPorServicio: Record<string, number> = {
-  'Corte Esencial': 120,
-  'Mini Rizos': 120,
-  'Rizos Masculinos': 90,
-  'Pixie Touch (45 días)': 120,
-  'Retoque Curly (1hr)': 60,
-  'Consulta Curly': 60,
-  'Rizos con Ciencia': 120,
-  'Rizos con Ciencia XL': 180,
-  'Afro con Ciencia': 240,
-  'Rizos Hidratados': 120,
-  'Baño de Vapor': 120,
-  'Curly Makeover': 120,
-  'Revive tu Rizo': 120,
-  'Relax and Restore': 120,
-  'Rizos y café': 120,
-  'Hidratación & Pausa': 120,
-  'Rizos Full Ritual': 150,
-  'Consulta con Hidratación': 60,
-  'Rizos masculinos hidratados': 90,
-  'Rizos masculinos con ciencia': 90,
-  'Mantenimineto Rizos Masculinos': 90,
-  'Corte Escencial XL': 180,
-  'Corte Afrorizo Poderoso': 240,
-  'Afro Glow': 240,
-  'Revive tu Rizo XL': 180,
-  'Baño de vapor XL': 180,
-  'Baño de vapor Afro': 240,
-  'Curly Makeover XL': 180,
-  'Rizos Hidratados XL': 120,
-  'Definición Curly': 60,
-  'Estilízate': 60,
-  'Estilízate XL': 120,
-  'Estilízate Afro': 90,
-  'Rizos de Gala': 60,
-}
 
 export default function ThankYouPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
+  const appointmentId = searchParams.get('appointmentId') // 🔑 lo pasamos desde API
 
   const [appointment, setAppointment] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!sessionId) {
+    if (!sessionId || !appointmentId) {
       router.push('/booking')
       return
     }
 
     const confirmarCita = async () => {
       try {
-        // 1. Consultar la sesión de Stripe
+        // 1. Validamos la sesión en Stripe
         const res = await fetch(`/api/stripe/check-session?session_id=${sessionId}`)
-        if (!res.ok) {
-          throw new Error("No se pudo validar la sesión de Stripe")
-        }
+        if (!res.ok) throw new Error('No se pudo validar la sesión de Stripe')
         const stripeData = await res.json()
 
-        if (!res.ok || stripeData.payment_status !== 'paid') {
+        if (stripeData.payment_status !== 'paid') {
           toast.error('El pago no fue confirmado.')
           router.push('/booking')
           return
         }
 
-        // 2. Recuperar los datos de la cita desde localStorage
-        const saved = localStorage.getItem('pendingAppointment')
-        if (!saved) {
-          toast.error('No encontramos tu cita pendiente.')
+        // 2. Obtenemos la cita desde Firestore
+        const ref = doc(db, 'citas', appointmentId)
+        const snap = await getDoc(ref)
+
+        if (!snap.exists()) {
+          toast.error('No encontramos tu cita en el sistema.')
           router.push('/booking')
           return
         }
 
-        const data = JSON.parse(saved)
-
-        // 3. Guardar en Firestore
-const duracion = duracionesPorServicio[data.servicio] || 60
-
-console.log("🔥 Intentando guardar cita en Firestore:", {
-  ...data,
-  duracion,
-  notas: data.notas || 'Sin notas',
-  status: 'por confirmar',
-  createdAt: new Date().toISOString(),
-})
-
-try {
-  const docRef = await addDoc(collection(db, 'citas'), {
-  type: data.tipoServicio,
-  professional: data.profesional,
-  date: data.fecha,
-  time: data.hora,
-  name: data.nombre,
-  email: data.email,
-  phone: data.telefono,
-  branch: data.sucursal,
-  service: [data.servicio],   // 👈 array como antes
-  duration: duracion,         // 👈 incluir duración
-  notes: data.notas || 'Sin notas',
-  status: 'por confirmar',    // 👈 o 'confirmada' según lo que necesites
-  createdAt: Timestamp.now(),
-})
-
-console.log("📄 Documento creado en 'citas' con ID:", docRef.id)
-  console.log("✅ Cita guardada correctamente en Firestore")
-} catch (err) {
-  console.error("❌ Error al guardar en Firestore:", err)
-}
-
-        // 4. Enviar correo de confirmación
-        await fetch('/api/send-confirmation-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: data.email,
-            name: data.nombre,
-            date: data.fecha,
-            time: data.hora,
-          }),
-        })
-
-        toast.success('¡Tu cita fue registrada! 🎉')
-        localStorage.setItem('appointmentConfirmed', 'true')
+        const data = snap.data()
         setAppointment(data)
+
+        // 3. Aviso visual
+        toast.success('¡Tu cita fue confirmada! 🎉')
       } catch (error) {
-        console.error('Error al confirmar cita:', error)
+        console.error('❌ Error al confirmar cita:', error)
         toast.error('No se pudo confirmar tu cita.')
         router.push('/booking')
       } finally {
@@ -142,7 +59,7 @@ console.log("📄 Documento creado en 'citas' con ID:", docRef.id)
     }
 
     confirmarCita()
-  }, [router, sessionId])
+  }, [router, sessionId, appointmentId])
 
   if (loading) {
     return <p className="text-center py-10">Procesando pago y confirmando tu cita...</p>
@@ -155,9 +72,9 @@ console.log("📄 Documento creado en 'citas' con ID:", docRef.id)
       <h1 className="text-3xl font-bold mb-4">¡Gracias por tu pago! 💖</h1>
       <p className="mb-2">Tu cita ha sido registrada para:</p>
       <p className="font-semibold text-lg">
-        {appointment.fecha} a las {appointment.hora} con {appointment.profesional}
+        {appointment.date} a las {appointment.time} con {appointment.professional}
       </p>
-      <p className="text-muted-foreground mb-6">{appointment.sucursal}</p>
+      <p className="text-muted-foreground mb-6">{appointment.branch}</p>
       <p className="text-muted-foreground mb-6">
         Nuestro equipo confirmará tu cita y te contactará por WhatsApp 📲.
       </p>
