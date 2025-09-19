@@ -255,21 +255,37 @@ export default function BookingPage() {
       createdAt: Timestamp.now()
     }
 
+    // Dentro de handleSubmit (después de addDoc)
     try {
       // 1️⃣ Guardar en Firestore
       const docRef = await addDoc(collection(db, 'citas'), appointmentData)
       console.log('📄 Cita creada con ID:', docRef.id)
 
-      // 2️⃣ Enviar a Stripe con appointmentId
+      // 2️⃣ Enviar correo con Resend
+      await fetch('/api/send-confirmation-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name: nombre,
+          date: formattedDate,
+          time: hora,
+          professional: profesional,
+          branch: sucursal,
+          service: [servicio],
+        }),
+      })
+
+      // 3️⃣ Redirigir a Stripe
       const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          name: nombre, 
-          email, 
-          date: formattedDate, 
-          time: hora, 
-          appointmentId: docRef.id 
+        body: JSON.stringify({
+          name: nombre,
+          email,
+          date: formattedDate,
+          time: hora,
+          appointmentId: docRef.id
         })
       })
       const data = await res.json()
@@ -398,9 +414,9 @@ export default function BookingPage() {
           </div>
         </AlertDialogContent>
       </AlertDialog>
-      
 
-      
+
+
 
       {/* Modal si no aceptó políticas */}
       <AlertDialog open={modalPoliticas} onOpenChange={setModalPoliticas}>
