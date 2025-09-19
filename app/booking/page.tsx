@@ -74,15 +74,15 @@ const duracionesPorServicio: Record<string, number> = {
   'Rizos de Gala': 60
 }
 
-// Helpers
+const obtenerBloques = (duracionMin: number): number => Math.ceil(duracionMin / 60)
+
+// Validaciones de horario
 const dentroDeHorarioComida = (inicio: Date, fin: Date) => {
   const comidaInicio = new Date(inicio); comidaInicio.setHours(14, 0, 0, 0)
   const comidaFin = new Date(inicio); comidaFin.setHours(15, 0, 0, 0)
   return inicio < comidaFin && fin > comidaInicio
 }
 const cruzaDespuesDeSiete = (fin: Date) => fin.getHours() >= 19
-const hayTraslape = (inicioA: Date, finA: Date, inicioB: Date, finB: Date) =>
-  inicioA < finB && finA > inicioB
 
 export default function BookingPage() {
   const searchParams = useSearchParams()
@@ -101,10 +101,10 @@ export default function BookingPage() {
   const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
 
   // --- Estados de control ---
+  const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
   const [enabledMonths, setEnabledMonths] = useState<string[]>([])
   const [blockedDates, setBlockedDates] = useState<string[]>([])
   const [blockedWeekDays, setBlockedWeekDays] = useState<number[]>([])
-  const [citasDelDia, setCitasDelDia] = useState<{ hora: string, duracion: number }[]>([])
 
   // Modales
   const [modalError, setModalError] = useState<{ open: boolean, mensaje: string }>({ open: false, mensaje: '' })
@@ -147,29 +147,35 @@ export default function BookingPage() {
     fetchBlocked()
   }, [profesional])
 
-  // Citas ocupadas en Firebase
+  // Horarios ocupados en Firebase
   useEffect(() => {
-    const obtenerCitasDelDia = async () => {
-      if (fecha && profesional) {
+    const obtenerHorariosOcupados = async () => {
+      if (fecha && profesional && servicio) {
         const q = query(
           collection(db, 'citas'),
           where('fecha', '==', format(fecha, 'yyyy-MM-dd')),
           where('profesional', '==', profesional)
         )
         const snapshot = await getDocs(q)
-        const citas = snapshot.docs.map(doc => ({
-          hora: doc.data().hora,
-          duracion: doc.data().duracion || 60
-        }))
-        setCitasDelDia(citas)
+        const ocupados: string[] = []
+        snapshot.docs.forEach(doc => {
+          const horaInicio = doc.data().hora
+          const duracion = duracionesPorServicio[doc.data().servicio] || 60
+          const indexInicio = horariosDisponibles.indexOf(horaInicio)
+          for (let i = 0; i < obtenerBloques(duracion); i++) {
+            const bloque = horariosDisponibles[indexInicio + i]
+            if (bloque) ocupados.push(bloque)
+          }
+        })
+        setHorariosOcupados(ocupados)
       } else {
-        setCitasDelDia([])
+        setHorariosOcupados([])
       }
     }
-    obtenerCitasDelDia()
-  }, [fecha, profesional])
+    obtenerHorariosOcupados()
+  }, [fecha, profesional, servicio])
 
-  // Validación de horario disponible
+  // Validación de horario
   const esHorarioDisponible = (hora: string): boolean => {
     if (!fecha || !servicio) return false
 
@@ -183,18 +189,10 @@ export default function BookingPage() {
     if (blockedWeekDays.includes(inicio.getDay())) return false
     if (blockedDates.includes(format(inicio, 'yyyy-MM-dd'))) return false
 
-    // Revisar todas las citas guardadas en Firebase
-    for (const cita of citasDelDia) {
-      const [ch, cm] = cita.hora.split(':').map(Number)
-      const inicioCita = new Date(fecha); inicioCita.setHours(ch, cm, 0, 0)
-      const finCita = new Date(inicioCita.getTime() + cita.duracion * 60000)
-      if (hayTraslape(inicio, fin, inicioCita, finCita)) return false
-    }
-
-    return true
+    return !horariosOcupados.includes(hora)
   }
 
-  // Submit
+  // Submit con validación final en Firebase
   const handleSubmit = async () => {
     if (!aceptoPoliticas) {
       setModalPoliticas(true)
@@ -220,26 +218,41 @@ export default function BookingPage() {
     const inicio = new Date(fecha); inicio.setHours(h, m, 0, 0)
     const fin = new Date(inicio.getTime() + duracion * 60000)
 
-    // Validaciones finales
     if (dentroDeHorarioComida(inicio, fin)) {
-      setModalError({ open: true, mensaje: '🍽️ No se pueden reservar citas entre 2:00 pm y 3:00 pm.' })
+      setModalError({ open: true, mensaje: '🍽️ No se pueden reservar citas entre 2:00 pm y 3:00 pm (horario de comida).' })
       return
     }
     if (cruzaDespuesDeSiete(fin)) {
       setModalError({ open: true, mensaje: '⏰ No se permiten citas que terminen después de las 7:00 pm.' })
       return
     }
-    for (const cita of citasDelDia) {
-      const [ch, cm] = cita.hora.split(':').map(Number)
-      const inicioCita = new Date(fecha); inicioCita.setHours(ch, cm, 0, 0)
-      const finCita = new Date(inicioCita.getTime() + cita.duracion * 60000)
-      if (hayTraslape(inicio, fin, inicioCita, finCita)) {
-        setModalError({ open: true, mensaje: '❌ Ese horario ya está ocupado.' })
-        return
-      }
+    if (blockedWeekDays.includes(inicio.getDay()) || blockedDates.includes(format(inicio, 'yyyy-MM-dd'))) {
+      setModalError({ open: true, mensaje: '🚫 Ese día está bloqueado para esta profesional.' })
+      return
     }
 
     const formattedDate = format(fecha, 'yyyy-MM-dd')
+
+    // 🚨 Validación final en Firebase (no duplicar cita)
+    try {
+      const q = query(
+        collection(db, 'citas'),
+        where('fecha', '==', formattedDate),
+        where('profesional', '==', profesional),
+        where('hora', '==', hora)
+      )
+      const snapshot = await getDocs(q)
+      if (!snapshot.empty) {
+        setModalError({ open: true, mensaje: '❌ Ese horario ya fue ocupado justo ahora, intenta otro.' })
+        return
+      }
+    } catch (err) {
+      console.error("Error verificando disponibilidad en Firebase:", err)
+      setModalError({ open: true, mensaje: '⚠️ Error al verificar disponibilidad. Intenta de nuevo.' })
+      return
+    }
+
+    // Guardar en localStorage y Stripe
     const appointmentData = {
       tipoServicio,
       profesional,
@@ -279,7 +292,6 @@ export default function BookingPage() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Reserva tu cita</h2>
 
-      {/* Formulario */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tipo de servicio */}
         <div>
@@ -381,10 +393,12 @@ export default function BookingPage() {
                 <AlertDialogTitle>Políticas de Reserva y Cancelación</AlertDialogTitle>
               </AlertDialogHeader>
               <div className="space-y-3 text-sm text-muted-foreground py-2">
-                <p>⏰ <strong>Tolerancia:</strong> Máximo 20 minutos.</p>
+                <p>⏰ <strong>Tolerancia:</strong> Máximo 20 minutos. Luego se cancela sin reembolso.</p>
                 <p>🔁 <strong>Reagendar:</strong> Al menos 48h de anticipación vía WhatsApp.</p>
                 <p>❌ <strong>Cancelaciones:</strong> No hay reembolsos.</p>
                 <p>💳 <strong>Anticipo:</strong> Obligatorio para confirmar.</p>
+                <p>📍 <strong>Sucursal:</strong> Aplica solo a la elegida.</p>
+                <p>👩‍🔬 <strong>Profesionales:</strong> Puede haber cambios según disponibilidad.</p>
               </div>
               <div className="flex justify-end pt-4">
                 <AlertDialogCancel asChild><Button variant="outline">Cerrar</Button></AlertDialogCancel>
@@ -409,9 +423,6 @@ export default function BookingPage() {
           </div>
         </AlertDialogContent>
       </AlertDialog>
-
-
-
 
       {/* Modal si no aceptó políticas */}
       <AlertDialog open={modalPoliticas} onOpenChange={setModalPoliticas}>
