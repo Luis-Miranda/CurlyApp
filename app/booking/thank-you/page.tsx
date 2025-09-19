@@ -43,7 +43,7 @@ export default function ThankYouPage() {
       // 3️⃣ Actualizar estatus a pagada
       await updateDoc(ref, { status: 'pagada' })
 
-      // 4️⃣ Mandar correo con Resend
+      // 4️⃣ Mandar correo con Resend (ahora con todos los datos)
       await fetch('/api/send-confirmation-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,8 +54,9 @@ export default function ThankYouPage() {
           time: cita.time,
           professional: cita.professional,
           branch: cita.branch,
-          service: cita.service
-        })
+          service: cita.service,
+          duration: cita.duration || 60, // por si acaso no lo trae
+        }),
       })
     }
 

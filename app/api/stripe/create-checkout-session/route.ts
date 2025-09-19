@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       customer_email: email,
       metadata: { name, date, time, appointmentId }, // 👈 guardamos referencia a la cita
       allow_promotion_codes: true,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/thank-you?session_id={CHECKOUT_SESSION_ID}&appointmentId=${appointmentId}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking`,
     })
 

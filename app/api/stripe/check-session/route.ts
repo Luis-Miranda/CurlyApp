@@ -15,9 +15,19 @@ export async function GET(req: Request) {
 
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId)
-    return NextResponse.json(session)
+
+    return NextResponse.json({
+      id: session.id,
+      payment_status: session.payment_status,
+      customer_email: session.customer_email,
+      amount_total: session.amount_total,
+      metadata: session.metadata, // 👈 aquí viene tu appointmentId también
+    })
   } catch (error) {
     console.error("❌ Error al verificar sesión:", error)
-    return NextResponse.json({ error: "Error verificando sesión" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Error verificando sesión" },
+      { status: 500 }
+    )
   }
 }

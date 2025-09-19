@@ -1,3 +1,4 @@
+// app/api/send-confirmation-email/route.ts
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
@@ -5,19 +6,30 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   try {
-    const { email, name, date, time } = await req.json()
+    const { email, name, date, time, professional, branch, service, duration } = await req.json()
 
-    if (!email || !name || !date || !time) {
+    if (!email || !name || !date || !time || !branch || !service) {
       return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
     }
 
-    // Convertir a formato para Google Calendar (ej. 20250915T100000Z)
+    // 1️⃣ Generar inicio y fin para Google Calendar
     const start = `${date.replace(/-/g, '')}T${time.replace(':', '')}00Z`
-    const end = `${date.replace(/-/g, '')}T${time.replace(':', '')}30Z`
+    const endDate = new Date(`${date}T${time}:00`)
+    endDate.setMinutes(endDate.getMinutes() + (duration || 60))
+    const end = `${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`
 
-    const calendarUrl = `https://calendar.google.com/calendar/u/0/r/eventedit?text=Cita+Maravilla+Curly&dates=${start}/${end}&details=Tu+cita+en+Maravilla+Curly&location=Av.+Miguel+Ángel+de+Quevedo+520a,+CDMX`
-    const mapsUrl = `https://www.google.com/maps?q=Av.+Miguel+Ángel+de+Quevedo+520a,+CDMX`
+    // 2️⃣ URLs útiles
+    const calendarUrl = `https://calendar.google.com/calendar/u/0/r/eventedit?text=Cita+Maravilla+Curly+-+${service}&dates=${start}/${end}&details=Tu+cita+en+Maravilla+Curly+con+${professional}&location=${encodeURIComponent(branch)}`
+    const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(branch)}`
 
+    // 3️⃣ Duración en horas/min
+    const horas = Math.floor((duration || 60) / 60)
+    const minutos = (duration || 60) % 60
+    const duracionTexto = horas > 0
+      ? `${horas}h ${minutos > 0 ? minutos + 'min' : ''}`
+      : `${minutos}min`
+
+    // 4️⃣ Enviar correo con Resend
     const emailData = await resend.emails.send({
       from: 'Maravilla Curly <contacto@maravillacurly.com.mx>',
       to: email,
@@ -25,12 +37,15 @@ export async function POST(req: Request) {
       html: `
         <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto;">
           <h2 style="color: #000;">¡Hola, ${name}!</h2>
-          <p style="font-size: 16px;">Tu cita ha sido agendada con éxito en <strong>Maravilla Curly</strong>.</p>
+          <p style="font-size: 16px;">Tu cita ha sido confirmada en <strong>Maravilla Curly</strong>.</p>
 
           <ul style="list-style: none; padding-left: 0; font-size: 16px;">
             <li><strong>📅 Fecha:</strong> ${date}</li>
             <li><strong>🕒 Hora:</strong> ${time}</li>
-            <li><strong>📍 Dirección:</strong> Av. Miguel Ángel de Quevedo 520a, CDMX</li>
+            <li><strong>⏳ Duración:</strong> ${duracionTexto}</li>
+            <li><strong>👩‍🔬 Profesional:</strong> ${professional}</li>
+            <li><strong>💇‍♀️ Servicio:</strong> ${Array.isArray(service) ? service.join(', ') : service}</li>
+            <li><strong>📍 Dirección:</strong> ${branch}</li>
           </ul>
 
           <div style="margin: 30px 0;">
@@ -50,7 +65,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(emailData)
   } catch (error) {
-    console.error('Error al enviar el correo:', error)
+    console.error('❌ Error al enviar el correo:', error)
     return NextResponse.json({ error: 'Error al enviar el correo' }, { status: 500 })
   }
 }
