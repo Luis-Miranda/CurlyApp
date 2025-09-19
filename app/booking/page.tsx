@@ -27,13 +27,50 @@ import {
 } from '@/components/ui/alert-dialog'
 
 // Profesionales
-const profesionalesVIP = ['Keyla']
+const profesionalesVIP = ['Keyla', /* 'Maravilla Curly' */]
 const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
 
-// Horarios
+// Horarios base
 const horariosDisponibles = [
   '10:00', '11:00', '12:00', '13:00',
   '15:00', '16:00', '17:00', '18:00'
+]
+
+const servicios = [
+  'Corte Esencial',
+  'Mini Rizos',
+  'Rizos Masculinos',
+  'Pixie Touch (45 días)',
+  'Retoque Curly (1hr)',
+  'Consulta Curly',
+  'Rizos con Ciencia',
+  'Rizos con Ciencia XL',
+  'Afro con Ciencia',
+  'Rizos Hidratados',
+  'Baño de Vapor',
+  'Curly Makeover',
+  'Revive tu Rizo',
+  'Relax and Restore',
+  'Rizos y café',
+  'Hidratación & Pausa',
+  'Rizos Full Ritual',
+  'Consulta con Hidratación',
+  'Rizos masculinos hidratados',
+  'Rizos masculinos con ciencia',
+  'Mantenimineto Rizos Masculinos',
+  'Corte Escencial XL',
+  'Corte Afrorizo Poderoso',
+  'Afro Glow',
+  'Revive tu Rizo XL',
+  'Baño de vapor XL',
+  'Baño de vapor Afro',
+  'Curly Makeover XL',
+  'Rizos Hidratados XL',
+  'Definición Curly',
+  'Estilízate',
+  'Estilízate XL',
+  'Estilízate Afro',
+  'Rizos de Gala'
 ]
 
 // Servicios + duraciones
@@ -87,6 +124,7 @@ const cruzaDespuesDeSiete = (fin: Date) => fin.getHours() >= 19
 export default function BookingPage() {
   const searchParams = useSearchParams()
 
+  // --- Estados del formulario ---
   const [tipoServicio, setTipoServicio] = useState('')
   const [profesional, setProfesional] = useState('')
   const [fecha, setFecha] = useState<Date | undefined>()
@@ -99,10 +137,13 @@ export default function BookingPage() {
   const [notas, setNotas] = useState('')
   const [aceptoPoliticas, setAceptoPoliticas] = useState(false)
 
+  // --- Estados de control ---
   const [horariosOcupados, setHorariosOcupados] = useState<string[]>([])
   const [enabledMonths, setEnabledMonths] = useState<string[]>([])
+  const [blockedDates, setBlockedDates] = useState<string[]>([])
+  const [blockedWeekDays, setBlockedWeekDays] = useState<number[]>([])
 
-  // Modal de errores
+  // Modales
   const [modalError, setModalError] = useState<{ open: boolean, mensaje: string }>({ open: false, mensaje: '' })
   const [modalPoliticas, setModalPoliticas] = useState(false)
 
@@ -114,7 +155,7 @@ export default function BookingPage() {
     if (servicioDesdeURL && servicio === '') setServicio(servicioDesdeURL)
   }, [searchParams, servicio])
 
-  // Cargar meses habilitados
+  // Meses habilitados
   useEffect(() => {
     const fetchEnabledMonths = async () => {
       const snapshot = await getDocs(collection(db, 'enabledBookingMonths'))
@@ -124,23 +165,35 @@ export default function BookingPage() {
     fetchEnabledMonths()
   }, [])
 
-  // Cargar horarios ocupados
+  // Bloqueos por profesional
+  useEffect(() => {
+    const fetchBlocked = async () => {
+      if (!profesional) return
+      const snapshot = await getDocs(collection(db, 'blockedDaysByProfessional'))
+      snapshot.docs.forEach(doc => {
+        if (doc.id === profesional) {
+          setBlockedDates(doc.data().blockedDates || [])
+          setBlockedWeekDays(doc.data().blockedWeekDays || [])
+        }
+      })
+    }
+    fetchBlocked()
+  }, [profesional])
+
+  // Horarios ocupados en Firebase
   useEffect(() => {
     const obtenerHorariosOcupados = async () => {
       if (fecha && profesional && servicio) {
         const q = query(
           collection(db, 'citas'),
-          where('date', '==', format(fecha, 'yyyy-MM-dd')),      // 👈 usamos "date"
-          where('professional', '==', profesional)               // 👈 usamos "professional"
+          where('fecha', '==', format(fecha, 'yyyy-MM-dd')),
+          where('profesional', '==', profesional)
         )
         const snapshot = await getDocs(q)
         const ocupados: string[] = []
         snapshot.docs.forEach(doc => {
-          const horaInicio = doc.data().time                      // 👈 usamos "time"
-          const servicioGuardado = Array.isArray(doc.data().service)
-            ? doc.data().service[0]                              // 👈 si es array, tomamos el primero
-            : doc.data().service
-          const duracion = duracionesPorServicio[servicioGuardado] || 60
+          const horaInicio = doc.data().hora
+          const duracion = duracionesPorServicio[doc.data().servicio] || 60
           const indexInicio = horariosDisponibles.indexOf(horaInicio)
           for (let i = 0; i < obtenerBloques(duracion); i++) {
             const bloque = horariosDisponibles[indexInicio + i]
@@ -155,6 +208,7 @@ export default function BookingPage() {
     obtenerHorariosOcupados()
   }, [fecha, profesional, servicio])
 
+  // Validación de horario
   const esHorarioDisponible = (hora: string): boolean => {
     if (!fecha || !servicio) return false
 
@@ -165,10 +219,13 @@ export default function BookingPage() {
 
     if (dentroDeHorarioComida(inicio, fin)) return false
     if (cruzaDespuesDeSiete(fin)) return false
+    if (blockedWeekDays.includes(inicio.getDay())) return false
+    if (blockedDates.includes(format(inicio, 'yyyy-MM-dd'))) return false
 
     return !horariosOcupados.includes(hora)
   }
 
+  // Submit
   const handleSubmit = async () => {
     if (!aceptoPoliticas) {
       setModalPoliticas(true)
@@ -177,6 +234,15 @@ export default function BookingPage() {
 
     if (!tipoServicio || !profesional || !fecha || !hora || !nombre || !email || !telefono || !sucursal || !servicio) {
       setModalError({ open: true, mensaje: '⚠️ Faltan datos obligatorios para reservar.' })
+      return
+    }
+
+    if (tipoServicio === 'VIP' && !profesionalesVIP.includes(profesional)) {
+      setModalError({ open: true, mensaje: '❌ Solo Keyla o Maravilla Curly pueden atender servicios VIP.' })
+      return
+    }
+    if (tipoServicio === 'Clásico' && profesionalesVIP.includes(profesional)) {
+      setModalError({ open: true, mensaje: '❌ Los servicios Clásicos no pueden ser atendidos por Keyla/Maravilla Curly.' })
       return
     }
 
@@ -189,31 +255,33 @@ export default function BookingPage() {
       setModalError({ open: true, mensaje: '🍽️ No se pueden reservar citas entre 2:00 pm y 3:00 pm (horario de comida).' })
       return
     }
-
     if (cruzaDespuesDeSiete(fin)) {
       setModalError({ open: true, mensaje: '⏰ No se permiten citas que terminen después de las 7:00 pm.' })
       return
     }
-
     if (horariosOcupados.includes(hora)) {
       setModalError({ open: true, mensaje: '❌ Ese horario ya está ocupado, elige otro.' })
+      return
+    }
+    if (blockedWeekDays.includes(inicio.getDay()) || blockedDates.includes(format(inicio, 'yyyy-MM-dd'))) {
+      setModalError({ open: true, mensaje: '🚫 Ese día está bloqueado para esta profesional.' })
       return
     }
 
     const formattedDate = format(fecha, 'yyyy-MM-dd')
     const appointmentData = {
-      type: tipoServicio,
-      professional: profesional,
-      date: formattedDate,
-      time: hora,
-      name: nombre,
+      tipoServicio,
+      profesional,
+      fecha: formattedDate,
+      hora,
+      nombre,
       email,
-      phone: telefono,
-      branch: sucursal,
-      service: [servicio],       // 👈 lo guardamos como array
-      duration: duracion,
-      notes: notas || 'Sin notas',
-      status: 'pendiente',
+      telefono,
+      sucursal,
+      servicio,
+      notas: notas || 'Sin notas',
+      duracion,
+      status: 'por confirmar',
       createdAt: Timestamp.now()
     }
 
@@ -228,11 +296,11 @@ export default function BookingPage() {
       if (data?.sessionUrl) {
         window.location.href = data.sessionUrl
       } else {
-        setModalError({ open: true, mensaje: 'Error al redirigir a Stripe' })
+        setModalError({ open: true, mensaje: '⚠️ Error al redirigir a Stripe.' })
       }
     } catch (err) {
       console.error(err)
-      setModalError({ open: true, mensaje: 'Hubo un error al iniciar el pago' })
+      setModalError({ open: true, mensaje: '❌ Hubo un error al iniciar el pago.' })
     }
   }
 
@@ -240,7 +308,7 @@ export default function BookingPage() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Reserva tu cita</h2>
 
-      {/* Formulario */}
+      {/* --- Formulario --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tipo de servicio */}
         <div>
@@ -268,7 +336,11 @@ export default function BookingPage() {
         {/* Fecha */}
         <div>
           <Label>Fecha</Label>
-          <DatePicker date={fecha} onChange={setFecha} enabledMonths={enabledMonths} />
+          <DatePicker
+            date={fecha}
+            onChange={setFecha}
+            enabledMonths={enabledMonths}
+          />
         </div>
 
         {/* Hora */}
@@ -284,8 +356,11 @@ export default function BookingPage() {
           </Select>
         </div>
 
+        {/* Nombre */}
         <div><Label>Nombre</Label><Input value={nombre} onChange={e => setNombre(e.target.value)} /></div>
+        {/* Correo */}
         <div><Label>Correo</Label><Input value={email} onChange={e => setEmail(e.target.value)} /></div>
+        {/* Teléfono */}
         <div><Label>Teléfono</Label><Input value={telefono} onChange={e => setTelefono(e.target.value)} /></div>
 
         {/* Sucursal */}
@@ -312,6 +387,7 @@ export default function BookingPage() {
           </Select>
         </div>
 
+        {/* Notas */}
         <div>
           <Label>Notas</Label>
           <Input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Opcional" />
