@@ -1,3 +1,4 @@
+/* /components/custom/date-DayPicker.tsx */
 'use client'
 
 import { CalendarIcon } from "lucide-react"
@@ -12,9 +13,17 @@ interface DatePickerProps {
   date?: Date
   onChange?: (date: Date | undefined) => void
   enabledMonths?: string[]
+  blockedDates?: string[]          // ['2025-09-22', '2025-09-30']
+  blockedWeekDays?: number[]       // [1, 3] → lunes y miércoles
 }
 
-export default function DatePicker({ date, onChange, enabledMonths }: DatePickerProps) {
+export default function DatePicker({ 
+  date, 
+  onChange, 
+  enabledMonths, 
+  blockedDates = [], 
+  blockedWeekDays = [] 
+}: DatePickerProps) {
   const today = new Date()
   const maxDate = new Date(today)
   maxDate.setMonth(today.getMonth() + 3)
@@ -40,7 +49,16 @@ export default function DatePicker({ date, onChange, enabledMonths }: DatePicker
           onSelect={onChange}
           disabled={(day) => {
             const monthKey = format(day, "yyyy-MM")
-            return !enabledMonths?.includes(monthKey) || day.getDay() === 0
+            const dayKey = format(day, "yyyy-MM-dd")
+
+            return (
+              day < today || 
+              day > maxDate || 
+              !enabledMonths?.includes(monthKey) || 
+              day.getDay() === 0 || 
+              blockedWeekDays.includes(day.getDay()) || 
+              blockedDates.includes(dayKey)
+            )
           }}
           locale={es}
           initialFocus

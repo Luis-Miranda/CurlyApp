@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/alert-dialog'
 
 // Profesionales
-const profesionalesVIP = ['Keyla', /* 'Maravilla Curly' */]
+const profesionalesVIP = ['Keyla'] // agrega "Maravilla Curly" si quieres
 const profesionalesClasico = ['Coco', 'Cintia', 'Mayra', 'Karen', 'Vane', 'Karla', 'Mony']
 
 // Horarios base
@@ -73,7 +73,7 @@ const servicios = [
   'Rizos de Gala'
 ]
 
-// Servicios + duraciones
+// Duraciones por servicio
 const duracionesPorServicio: Record<string, number> = {
   'Corte Esencial': 120,
   'Mini Rizos': 120,
@@ -147,7 +147,11 @@ export default function BookingPage() {
   const [modalError, setModalError] = useState<{ open: boolean, mensaje: string }>({ open: false, mensaje: '' })
   const [modalPoliticas, setModalPoliticas] = useState(false)
 
-  const profesionales = tipoServicio === 'VIP' ? profesionalesVIP : tipoServicio === 'Clásico' ? profesionalesClasico : []
+  const profesionales = tipoServicio === 'VIP'
+    ? profesionalesVIP
+    : tipoServicio === 'Clásico'
+      ? profesionalesClasico
+      : []
 
   // Prellenar servicio desde URL
   useEffect(() => {
@@ -308,7 +312,6 @@ export default function BookingPage() {
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Reserva tu cita</h2>
 
-      {/* --- Formulario --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Tipo de servicio */}
         <div>
@@ -340,6 +343,8 @@ export default function BookingPage() {
             date={fecha}
             onChange={setFecha}
             enabledMonths={enabledMonths}
+            blockedDates={blockedDates}
+            blockedWeekDays={blockedWeekDays}
           />
         </div>
 
@@ -356,11 +361,8 @@ export default function BookingPage() {
           </Select>
         </div>
 
-        {/* Nombre */}
         <div><Label>Nombre</Label><Input value={nombre} onChange={e => setNombre(e.target.value)} /></div>
-        {/* Correo */}
         <div><Label>Correo</Label><Input value={email} onChange={e => setEmail(e.target.value)} /></div>
-        {/* Teléfono */}
         <div><Label>Teléfono</Label><Input value={telefono} onChange={e => setTelefono(e.target.value)} /></div>
 
         {/* Sucursal */}
@@ -387,7 +389,6 @@ export default function BookingPage() {
           </Select>
         </div>
 
-        {/* Notas */}
         <div>
           <Label>Notas</Label>
           <Input value={notas} onChange={e => setNotas(e.target.value)} placeholder="Opcional" />
@@ -442,6 +443,7 @@ export default function BookingPage() {
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
 
       {/* Modal si no aceptó políticas */}
       <AlertDialog open={modalPoliticas} onOpenChange={setModalPoliticas}>
