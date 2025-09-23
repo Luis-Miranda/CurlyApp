@@ -125,13 +125,13 @@ export function ServiceCard({ service }: ServiceCardProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button
+             {/*    <Button
                   className="flex-1"
                   onClick={handleReserveClick}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   Agendar ahora
-                </Button>
+                </Button> */}
                 <Button
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
@@ -143,10 +143,10 @@ export function ServiceCard({ service }: ServiceCardProps) {
           </DialogContent>
         </Dialog>
 
-        <Button onClick={handleReserveClick} className="w-full">
+      {/*   <Button onClick={handleReserveClick} className="w-full">
           <CalendarIcon className="mr-2 h-4 w-4" />
           Agendar este servicio
-        </Button>
+        </Button> */}
       </CardFooter>
     </Card>
   )
