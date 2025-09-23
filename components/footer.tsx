@@ -26,7 +26,7 @@ export function Footer() {
               <Link href="/services" className="block text-muted-foreground hover:text-primary transition-colors">
                 Servicios
               </Link>
-              <Link href="/booking" className="block text-muted-foreground hover:text-primary transition-colors">
+              <Link href="https://maravillacurly.site.agendapro.com/mx/" className="block text-muted-foreground hover:text-primary transition-colors">
                 Agenda una Cita
               </Link>
               <Link href="/contact" className="block text-muted-foreground hover:text-primary transition-colors">

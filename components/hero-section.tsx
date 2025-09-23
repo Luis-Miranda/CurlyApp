@@ -30,7 +30,7 @@ export function HeroSection() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" className="text-lg px-8 py-6" asChild>
-            <Link href="/booking">Agenda una Cita</Link>
+            <Link href="https://maravillacurly.site.agendapro.com/mx/">Agenda una Cita</Link> 
           </Button>
           <Button
             size="lg"

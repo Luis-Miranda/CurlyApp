@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 const navigation = [
   { name: "Inicio", href: "/" },
   { name: "Servicios", href: "/services" },
-  { name: "Reserva", href: "/booking" }, 
+  { name: "Reserva", href: "https://maravillacurly.site.agendapro.com/mx/" }, 
   { name: "Contacto", href: "/contact" },
 ]
 
@@ -49,7 +49,7 @@ export function Navigation() {
           {/* Desktop CTA */}
           <div className="hidden md:flex">
             <Button asChild>
-              <Link href="/booking">Agenda ahora</Link>
+              <Link href="https://maravillacurly.site.agendapro.com/mx/">Agenda ahora</Link>
             </Button>
           </div>
 
