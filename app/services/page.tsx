@@ -21,9 +21,9 @@ const services = [
     id: 2,
     title: "Mini Rizos",
     category: "Corte",
-    description: "A partir de 3 a 12 años en texturas onduladas y rizadas (2A-3C)",
+    description: "A partir de 3 a 10 años en texturas onduladas y rizadas (2A-3C)",
     fullDescription:
-      "( antes corte infantil) A partir de 3 a 12 años en texturas onduladas y rizadas ( 2a-3c ): Incluye Diagnóstico dermocapilar, receta con ajustes en la rutina de productos ,corte en seco, limpieza profunda, acondicionado sencillo, clase de estilizado y accesorio de regalo. Costo de la versión VIP $840 mxn.",
+      "( antes corte infantil) A partir de 3 a 10 años en texturas onduladas y rizadas ( 2a-3c ): Incluye Diagnóstico dermocapilar, receta con ajustes en la rutina de productos ,corte en seco, limpieza profunda, acondicionado sencillo, clase de estilizado y accesorio de regalo. Costo de la versión VIP $840 mxn.",
     requirements: "Acudir con el cabello limpio y seco, sin productos pesados. Traer productos que usas actualmente si es posible.",
     image: "/images/services/mini-rizos.jpg", /* Imágen 2A-3C */
     price: "$700",
